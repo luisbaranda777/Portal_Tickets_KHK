@@ -1,12 +1,34 @@
-// Importar el cliente de Supabase desde CDN
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-// Tus credenciales de Supabase
 const SUPABASE_URL = 'https://pbqeepnxthppgpdpbzwu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JZmwSp6d8vF0WV-hChz9EQ_KQozWIt5';
-
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Cargar dinámicamente las sucursales y categorías al abrir el formulario
+async function cargarOpcionesFormulario() {
+    const selectSucursal = document.getElementById('sucursal');
+    const selectCategoria = document.getElementById('categoria');
+
+    if (selectSucursal) {
+        const { data: sucs } = await supabase.from('config_sucursales').select('*').order('id');
+        if (sucs) {
+            selectSucursal.innerHTML = '<option value="">Selecciona una sucursal...</option>' + 
+                sucs.map(s => `<option value="${s.nombre}">${s.nombre}</option>`).join('');
+        }
+    }
+
+    if (selectCategoria) {
+        const { data: cats } = await supabase.from('config_categorias').select('*').order('id');
+        if (cats) {
+            selectCategoria.innerHTML = '<option value="">Selecciona una categoría...</option>' + 
+                cats.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+        }
+    }
+}
+
+cargarOpcionesFormulario();
+
+// Manejo del envío del ticket
 document.getElementById('ticketForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -19,25 +41,13 @@ document.getElementById('ticketForm').addEventListener('submit', async function(
     const archivoInput = document.getElementById('adjunto');
     const archivoNombre = archivoInput.files.length > 0 ? archivoInput.files[0].name : "Ninguno";
 
-    // Enviar datos a la tabla 'tickets' en Supabase
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from('tickets')
-        .insert([
-            { 
-                sucursal, 
-                solicitante, 
-                correo, 
-                categoria, 
-                urgencia, 
-                descripcion, 
-                archivo: archivoNombre,
-                estado: 'Abierto'
-            }
-        ]);
+        .insert([{ sucursal, solicitante, correo, categoria, urgencia, descripcion, archivo: archivoNombre, estado: 'Abierto' }]);
 
     if (error) {
         console.error('Error al guardar el ticket:', error);
-        alert('Hubo un error al crear el ticket. Revisa la consola.');
+        alert('Hubo un error al crear el ticket.');
     } else {
         alert(`¡Ticket creado con éxito y guardado en la base de datos!\n\nSucursal: ${sucursal}\nSolicitante: ${solicitante}`);
         document.getElementById('ticketForm').reset();
