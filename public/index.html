@@ -3,32 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesa de Ayuda TI - KAWASAKI´S y ESMERALDA HARLEY D.</title>
+    <title>Portal de Tickets - Grupo Huerta</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
+<body class="bg-white text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Header con temática TI -->
-    <header class="bg-slate-900 border-b border-slate-800 text-cyan-400 text-center py-5 font-mono font-bold text-xl tracking-wider shadow-lg">
-        💻 PORTAL DE SOPORTE TI // KHK SYSTEMS
+    <!-- Header con el logo y título -->
+    <header class="bg-white border-b border-slate-200 shadow-sm py-4 px-6 flex items-center justify-between">
+        <!-- Logo (Asegúrate de guardar tu imagen como logo.png en la carpeta public) -->
+        <div class="flex items-center space-x-3">
+            <img src="logo.png" alt="Grupo Huerta Logo" class="h-10 w-auto object-contain">
+        </div>
+        <!-- Título central / derecho -->
+        <h1 class="text-xl font-black text-slate-900 tracking-wider font-mono">
+            PORTAL DE TICKETS
+        </h1>
+        <div class="text-xs text-slate-400 font-mono hidden md:block">
+            Soporte TI // 2 Agentes
+        </div>
     </header>
 
     <!-- Contenido Principal -->
-    <main class="max-w-3xl mx-auto w-full p-8 my-8 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl shadow-2xl">
-        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-            <div>
-                <h2 class="text-2xl font-bold text-white tracking-tight">Crear Nuevo Ticket</h2>
-                <p class="text-sm text-slate-400 mt-1">Ingresa los datos para reportar una incidencia con tu equipo o sistema.</p>
-            </div>
-            <span class="px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-mono rounded-full">Sistemas Activos</span>
+    <main class="max-w-3xl mx-auto w-full p-8 my-8 bg-slate-50 border border-slate-200 rounded-2xl shadow-xl">
+        <div class="mb-6 pb-4 border-b border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Crear Nuevo Ticket</h2>
+            <p class="text-sm text-slate-500 mt-1">Ingresa los datos para reportar una incidencia con tu equipo o sistema.</p>
         </div>
 
         <form id="ticketForm" class="space-y-5">
             <!-- Sucursal -->
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Sucursal</label>
-                <select id="sucursal" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition">
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Sucursal</label>
+                <select id="sucursal" required class="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition">
                     <option value="">Selecciona una sucursal...</option>
                     <option value="Kawasaki Satelite">Kawasaki Satélite</option>
                     <option value="Insurgentes Sur">Insurgentes Sur</option>
@@ -36,40 +43,64 @@
                 </select>
             </div>
 
-            <!-- Solicitante -->
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Tu Nombre</label>
-                <input type="text" id="solicitante" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 placeholder-slate-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition">
+            <!-- Solicitante y Correo -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Tu Nombre</label>
+                    <input type="text" id="solicitante" required placeholder="Ej. Juan Pérez" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Correo Electrónico</label>
+                    <input type="email" id="correo" required placeholder="ejemplo@grupohuerta.com" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition">
+                </div>
             </div>
 
-            <!-- Categoría / Parámetro -->
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Categoría del Problema</label>
-                <select id="categoria" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition">
-                    <option value="">Selecciona una categoría...</option>
-                    <option value="Hardware (PC/Impresoras/Laptops/Celulares)">Hardware (PC / Impresoras / Laptops / Celulares)</option>
-                    <option value="Sistemas (GDS/BPRO)">Sistemas (GDS / BPRO)</option>
-                    <option value="Redes / Internet">Redes / Internet</option>
-                    <option value="Accesos / Contraseñas">Accesos / Contraseñas</option>
-                </select>
+            <!-- Categoría y Urgencia -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Categoría del Problema</label>
+                    <select id="categoria" required class="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition">
+                        <option value="">Selecciona una categoría...</option>
+                        <option value="Hardware (PC/Impresoras/Laptops/Celulares)">Hardware (PC / Impresoras / Laptops / Celulares)</option>
+                        <option value="Sistemas (GDS/BPRO)">Sistemas (GDS / BPRO)</option>
+                        <option value="Redes / Internet">Redes / Internet</option>
+                        <option value="Accesos / Contraseñas">Accesos / Contraseñas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Nivel de Urgencia</label>
+                    <select id="urgencia" required class="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition">
+                        <option value="">Selecciona urgencia...</option>
+                        <option value="Bajo">🟢 Bajo (No afecta operación principal)</option>
+                        <option value="Medio">🟡 Medio (Afecta parcialmente)</option>
+                        <option value="Alto">🔴 Alto (Imposible trabajar / Urgente)</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Descripción -->
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Descripción Detallada</label>
-                <textarea id="descripcion" rows="4" required placeholder="Describe detalladamente el inconveniente presentado..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 placeholder-slate-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition"></textarea>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Descripción Detallada</label>
+                <textarea id="descripcion" rows="4" required placeholder="Describe detalladamente el inconveniente presentado..." class="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"></textarea>
+            </div>
+
+            <!-- Adjuntar Archivos / Imágenes -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Adjuntar Captura o Archivo (Opcional)</label>
+                <input type="file" id="adjunto" accept="image/*,.pdf,.doc,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800 file:cursor-pointer border border-slate-300 rounded-xl bg-white p-2">
+                <span class="text-xs text-slate-400 mt-1 block">Formatos permitidos: Imágenes, PDF, Word (Máx. 5MB)</span>
             </div>
 
             <!-- Botón de Enviar -->
-            <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-3.5 rounded-xl shadow-lg shadow-cyan-900/30 transition duration-200 cursor-pointer">
-                🚀 Enviar Ticket a Soporte TI
+            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 cursor-pointer">
+                Enviar Ticket a Soporte TI
             </button>
         </form>
     </main>
 
     <!-- Footer -->
-    <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-900 font-mono">
-        Departamento de TI KHK &copy; 2026 // 2 Agentes en línea
+    <footer class="text-center py-6 text-xs text-slate-400 border-t border-slate-200 font-mono">
+        Grupo Huerta // Departamento de TI &copy; 2026
     </footer>
 
     <!-- Script JavaScript -->
