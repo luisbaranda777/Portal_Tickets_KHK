@@ -18,10 +18,13 @@
         <h1 class="text-xl font-black text-slate-900 tracking-wider font-mono">
             GESTIÓN DE TICKETS
         </h1>
-        <div>
+        <div class="flex items-center space-x-3">
             <a href="index.html" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition">
                 + Ir al Formulario
             </a>
+            <button id="btnCerrarSesion" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl transition border border-red-200">
+                Cerrar Sesión
+            </button>
         </div>
     </header>
 
@@ -67,6 +70,20 @@
     <footer class="text-center py-6 text-xs text-slate-400 border-t border-slate-200 font-mono">
         Grupo Huerta // Panel de Control TI &copy; 2026
     </footer>
+
+    <!-- Script de Protección y Cierre de Sesión -->
+    <script>
+        // Validar si está autenticado
+        if (sessionStorage.getItem('auth_ti') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // Botón para cerrar sesión de manera segura
+        document.getElementById('btnCerrarSesion').addEventListener('click', function() {
+            sessionStorage.removeItem('auth_ti');
+            window.location.href = 'login.html';
+        });
+    </script>
 
     <!-- Script de Administración -->
     <script type="module" src="admin.js"></script>

@@ -9,18 +9,21 @@
 </head>
 <body class="bg-white text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Header con el logo y título -->
+    <!-- Header con el logo, título y botón de admin -->
     <header class="bg-white border-b border-slate-200 shadow-sm py-4 px-6 flex items-center justify-between">
-        <!-- Logo (Asegúrate de guardar tu imagen como logo.png en la carpeta public) -->
+        <!-- Logo -->
         <div class="flex items-center space-x-3">
             <img src="logo.png" alt="Grupo Huerta Logo" class="h-10 w-auto object-contain">
         </div>
-        <!-- Título central / derecho -->
+        <!-- Título central -->
         <h1 class="text-xl font-black text-slate-900 tracking-wider font-mono">
             PORTAL DE TICKETS
         </h1>
-        <div class="text-xs text-slate-400 font-mono hidden md:block">
-            Soporte TI // 2 Agentes
+        <!-- Botón Administrador -->
+        <div>
+            <a href="login.html" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition border border-slate-300">
+                🔐 Administrador
+            </a>
         </div>
     </header>
 
@@ -104,6 +107,6 @@
     </footer>
 
     <!-- Script JavaScript -->
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
