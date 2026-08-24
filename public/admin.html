@@ -233,22 +233,30 @@
             // Sucursales
             const ulSuc = document.getElementById('listaSucursales');
             const { data: sucs } = await supabase.from('config_sucursales').select('*').order('id');
-            ulSuc.innerHTML = sucs?.map(s => `
-                <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
-                    <span>🏢 ${s.nombre}</span>
-                    <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition">Eliminar</button>
-                </li>
-            `).join('') || '<li class="text-slate-400 text-center">Sin sucursales</li>';
+            if (sucs && sucs.length > 0) {
+                ulSuc.innerHTML = sucs.map(s => `
+                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                        <span>🏢 ${s.nombre}</span>
+                        <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    </li>
+                `).join('');
+            } else {
+                ulSuc.innerHTML = '<li class="text-slate-400 text-center py-2">Sin sucursales</li>';
+            }
 
             // Categorías
             const ulCat = document.getElementById('listaCategorias');
             const { data: cats } = await supabase.from('config_categorias').select('*').order('id');
-            ulCat.innerHTML = cats?.map(c => `
-                <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
-                    <span>🏷️ ${c.nombre}</span>
-                    <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition">Eliminar</button>
-                </li>
-            `).join('') || '<li class="text-slate-400 text-center">Sin categorías</li>';
+            if (cats && cats.length > 0) {
+                ulCat.innerHTML = cats.map(c => `
+                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                        <span>🏷️ ${c.nombre}</span>
+                        <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    </li>
+                `).join('');
+            } else {
+                ulCat.innerHTML = '<li class="text-slate-400 text-center py-2">Sin categorías</li>';
+            }
         }
 
         document.getElementById('formSucursal').addEventListener('submit', async (e) => {
@@ -276,7 +284,9 @@
             }
         }
 
+        // Carga inicial de datos
         cargarTickets();
+        cargarConfiguracion(); // <-- Añadido aquí para que carguen al entrar a la pestaña de configuración
         document.getElementById('btnActualizar').addEventListener('click', cargarTickets);
     </script>
 </body>
