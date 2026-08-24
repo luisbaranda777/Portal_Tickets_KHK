@@ -111,12 +111,12 @@
                 <p class="text-sm text-slate-500">Agrega o elimina las opciones que aparecen en los selectores del formulario de tickets.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Administrar Sucursales -->
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-800 text-lg">🏢 Sucursales Disponibles</h3>
+                    <h3 class="font-bold text-slate-800 text-lg">🏢 Sucursales</h3>
                     <form id="formSucursal" class="flex gap-2">
-                        <input type="text" id="nuevaSucursal" required placeholder="Nombre de la nueva sucursal..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
+                        <input type="text" id="nuevaSucursal" required placeholder="Nueva sucursal..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
                         <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
                     </form>
                     <ul id="listaSucursales" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
@@ -126,12 +126,24 @@
 
                 <!-- Administrar Categorías -->
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-800 text-lg">🏷️ Categorías de Problema</h3>
+                    <h3 class="font-bold text-slate-800 text-lg">🏷️ Categorías</h3>
                     <form id="formCategoria" class="flex gap-2">
-                        <input type="text" id="nuevaCategoria" required placeholder="Nombre de la nueva categoría..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
+                        <input type="text" id="nuevaCategoria" required placeholder="Nueva categoría..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
                         <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
                     </form>
                     <ul id="listaCategorias" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
+                        <li class="text-slate-400 text-center py-2">Cargando...</li>
+                    </ul>
+                </div>
+
+                <!-- Administrar Departamentos / Áreas -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-800 text-lg">📂 Departamentos</h3>
+                    <form id="formDepartamento" class="flex gap-2">
+                        <input type="text" id="nuevoDepartamento" required placeholder="Nuevo departamento..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
+                    </form>
+                    <ul id="listaDepartamentos" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
                         <li class="text-slate-400 text-center py-2">Cargando...</li>
                     </ul>
                 </div>
@@ -228,14 +240,13 @@
             });
         }
 
-        // Lógica de Configuración (Sucursales y Categorías)
+        // Lógica de Configuración (Sucursales, Categorías y Departamentos)
         async function cargarConfiguracion() {
             // Sucursales
             const ulSuc = document.getElementById('listaSucursales');
             const { data: sucs, error: errSuc } = await supabase.from('config_sucursales').select('*').order('id');
-            
             if (errSuc || !sucs || sucs.length === 0) {
-                ulSuc.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin sucursales registradas</li>';
+                ulSuc.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin sucursales</li>';
             } else {
                 ulSuc.innerHTML = sucs.map(s => `
                     <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
@@ -248,14 +259,27 @@
             // Categorías
             const ulCat = document.getElementById('listaCategorias');
             const { data: cats, error: errCat } = await supabase.from('config_categorias').select('*').order('id');
-
             if (errCat || !cats || cats.length === 0) {
-                ulCat.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin categorías registradas</li>';
+                ulCat.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin categorías</li>';
             } else {
                 ulCat.innerHTML = cats.map(c => `
                     <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
                         <span class="font-medium text-slate-800">🏷️ ${c.nombre}</span>
                         <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    </li>
+                `).join('');
+            }
+
+            // Departamentos
+            const ulDep = document.getElementById('listaDepartamentos');
+            const { data: deps, error: errDep } = await supabase.from('config_departamentos').select('*').order('id');
+            if (errDep || !deps || deps.length === 0) {
+                ulDep.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin departamentos</li>';
+            } else {
+                ulDep.innerHTML = deps.map(d => `
+                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                        <span class="font-medium text-slate-800">📂 ${d.nombre}</span>
+                        <button onclick="eliminarConfig('config_departamentos', ${d.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                     </li>
                 `).join('');
             }
@@ -266,14 +290,8 @@
             const input = document.getElementById('nuevaSucursal');
             const nombre = input.value.trim();
             if(!nombre) return;
-            
             const { error } = await supabase.from('config_sucursales').insert([{ nombre }]);
-            if (!error) {
-                input.value = '';
-                cargarConfiguracion();
-            } else {
-                alert('Error: ' + error.message);
-            }
+            if (!error) { input.value = ''; cargarConfiguracion(); } else { alert('Error: ' + error.message); }
         });
 
         document.getElementById('formCategoria').addEventListener('submit', async (e) => {
@@ -281,24 +299,23 @@
             const input = document.getElementById('nuevaCategoria');
             const nombre = input.value.trim();
             if(!nombre) return;
-            
             const { error } = await supabase.from('config_categorias').insert([{ nombre }]);
-            if (!error) {
-                input.value = '';
-                cargarConfiguracion();
-            } else {
-                alert('Error al agregar categoría');
-            }
+            if (!error) { input.value = ''; cargarConfiguracion(); } else { alert('Error: ' + error.message); }
+        });
+
+        document.getElementById('formDepartamento').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('nuevoDepartamento');
+            const nombre = input.value.trim();
+            if(!nombre) return;
+            const { error } = await supabase.from('config_departamentos').insert([{ nombre }]);
+            if (!error) { input.value = ''; cargarConfiguracion(); } else { alert('Error: ' + error.message); }
         });
 
         window.eliminarConfig = async function(tabla, id) {
             if(confirm("¿Estás seguro de eliminar este elemento?")) {
                 const { error } = await supabase.from(tabla).delete().eq('id', id);
-                if (!error) {
-                    cargarConfiguracion();
-                } else {
-                    alert('Error al eliminar el elemento');
-                }
+                if (!error) { cargarConfiguracion(); } else { alert('Error al eliminar el elemento'); }
             }
         }
 
