@@ -20,13 +20,13 @@
 
         <!-- Menú Desplegable / Secciones -->
         <nav class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-            <button onclick="cambiarSeccion('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition">
+            <button onclick="cambiarSeccion('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer">
                 📊 Dashboard
             </button>
-            <button onclick="cambiarSeccion('usuarios')" id="nav-usuarios" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+            <button onclick="cambiarSeccion('usuarios')" id="nav-usuarios" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
                 👥 Usuarios
             </button>
-            <button onclick="cambiarSeccion('configuracion')" id="nav-configuracion" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+            <button onclick="cambiarSeccion('configuracion')" id="nav-configuracion" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
                 ⚙️ Config. Formulario
             </button>
         </nav>
@@ -36,7 +36,7 @@
             <a href="index.html" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition">
                 + Ir al Formulario
             </a>
-            <button id="btnCerrarSesion" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl transition border border-red-200">
+            <button id="btnCerrarSesion" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl transition border border-red-200 cursor-pointer">
                 Salir
             </button>
         </div>
@@ -117,7 +117,7 @@
                     <h3 class="font-bold text-slate-800 text-lg">🏢 Sucursales Disponibles</h3>
                     <form id="formSucursal" class="flex gap-2">
                         <input type="text" id="nuevaSucursal" required placeholder="Nombre de la nueva sucursal..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
-                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition">Agregar</button>
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
                     </form>
                     <ul id="listaSucursales" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
                         <li class="text-slate-400 text-center py-2">Cargando...</li>
@@ -129,7 +129,7 @@
                     <h3 class="font-bold text-slate-800 text-lg">🏷️ Categorías de Problema</h3>
                     <form id="formCategoria" class="flex gap-2">
                         <input type="text" id="nuevaCategoria" required placeholder="Nombre de la nueva categoría..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
-                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition">Agregar</button>
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
                     </form>
                     <ul id="listaCategorias" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
                         <li class="text-slate-400 text-center py-2">Cargando...</li>
@@ -167,12 +167,12 @@
             document.getElementById('seccion-usuarios').classList.add('hidden');
             document.getElementById('seccion-configuracion').classList.add('hidden');
 
-            document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition";
-            document.getElementById('nav-usuarios').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition";
-            document.getElementById('nav-configuracion').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition";
+            document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            document.getElementById('nav-usuarios').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            document.getElementById('nav-configuracion').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
 
             document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
-            document.getElementById(`nav-${seccion}`).className = "px-4 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition";
+            document.getElementById(`nav-${seccion}`).className = "px-4 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer";
 
             if (seccion === 'usuarios') cargarUsuarios();
             if (seccion === 'configuracion') cargarConfiguracion();
@@ -181,7 +181,7 @@
         async function cargarTickets() {
             const tbody = document.getElementById('tablaTickets');
             const { data: tickets, error } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
-            if (error || !tickets.length) {
+            if (error || !tickets || tickets.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No hay tickets registrados.</td></tr>`;
                 return;
             }
@@ -232,61 +232,79 @@
         async function cargarConfiguracion() {
             // Sucursales
             const ulSuc = document.getElementById('listaSucursales');
-            const { data: sucs } = await supabase.from('config_sucursales').select('*').order('id');
-            if (sucs && sucs.length > 0) {
+            const { data: sucs, error: errSuc } = await supabase.from('config_sucursales').select('*').order('id');
+            
+            if (errSuc || !sucs || sucs.length === 0) {
+                ulSuc.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin sucursales registradas</li>';
+            } else {
                 ulSuc.innerHTML = sucs.map(s => `
-                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
-                        <span>🏢 ${s.nombre}</span>
-                        <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                        <span class="font-medium text-slate-800">🏢 ${s.nombre}</span>
+                        <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                     </li>
                 `).join('');
-            } else {
-                ulSuc.innerHTML = '<li class="text-slate-400 text-center py-2">Sin sucursales</li>';
             }
 
             // Categorías
             const ulCat = document.getElementById('listaCategorias');
-            const { data: cats } = await supabase.from('config_categorias').select('*').order('id');
-            if (cats && cats.length > 0) {
+            const { data: cats, error: errCat } = await supabase.from('config_categorias').select('*').order('id');
+
+            if (errCat || !cats || cats.length === 0) {
+                ulCat.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin categorías registradas</li>';
+            } else {
                 ulCat.innerHTML = cats.map(c => `
-                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
-                        <span>🏷️ ${c.nombre}</span>
-                        <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                        <span class="font-medium text-slate-800">🏷️ ${c.nombre}</span>
+                        <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                     </li>
                 `).join('');
-            } else {
-                ulCat.innerHTML = '<li class="text-slate-400 text-center py-2">Sin categorías</li>';
             }
         }
 
         document.getElementById('formSucursal').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nombre = document.getElementById('nuevaSucursal').value.trim();
+            const input = document.getElementById('nuevaSucursal');
+            const nombre = input.value.trim();
             if(!nombre) return;
-            await supabase.from('config_sucursales').insert([{ nombre }]);
-            document.getElementById('nuevaSucursal').value = '';
-            cargarConfiguracion();
+            
+            const { error } = await supabase.from('config_sucursales').insert([{ nombre }]);
+            if (!error) {
+                input.value = '';
+                cargarConfiguracion();
+            } else {
+                alert('Error al agregar sucursal');
+            }
         });
 
         document.getElementById('formCategoria').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nombre = document.getElementById('nuevaCategoria').value.trim();
+            const input = document.getElementById('nuevaCategoria');
+            const nombre = input.value.trim();
             if(!nombre) return;
-            await supabase.from('config_categorias').insert([{ nombre }]);
-            document.getElementById('nuevaCategoria').value = '';
-            cargarConfiguracion();
+            
+            const { error } = await supabase.from('config_categorias').insert([{ nombre }]);
+            if (!error) {
+                input.value = '';
+                cargarConfiguracion();
+            } else {
+                alert('Error al agregar categoría');
+            }
         });
 
         window.eliminarConfig = async function(tabla, id) {
             if(confirm("¿Estás seguro de eliminar este elemento?")) {
-                await supabase.from(tabla).delete().eq('id', id);
-                cargarConfiguracion();
+                const { error } = await supabase.from(tabla).delete().eq('id', id);
+                if (!error) {
+                    cargarConfiguracion();
+                } else {
+                    alert('Error al eliminar el elemento');
+                }
             }
         }
 
-        // Carga inicial de datos
+        // Carga inicial
         cargarTickets();
-        cargarConfiguracion(); // <-- Añadido aquí para que carguen al entrar a la pestaña de configuración
+        cargarConfiguracion(); 
         document.getElementById('btnActualizar').addEventListener('click', cargarTickets);
     </script>
 </body>
