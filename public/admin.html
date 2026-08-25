@@ -164,6 +164,39 @@
 
     </main>
 
+    <!-- VENTANA MODAL FLOTANTE PARA CONTESTAR TICKET -->
+    <div id="modalResponder" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 border border-slate-200 animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                    ✉️ Responder Ticket <span id="modalTicketId" class="text-slate-400 font-mono text-sm"></span>
+                </h3>
+                <button onclick="cerrarModalResponder()" class="text-slate-400 hover:text-slate-600 text-lg font-bold cursor-pointer">&times;</button>
+            </div>
+            
+            <div class="space-y-1">
+                <p class="text-xs text-slate-500">Para: <span id="modalSolicitante" class="font-semibold text-slate-700"></span> (<span id="modalCorreo" class="font-mono text-indigo-600"></span>)</p>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-slate-600 uppercase">Mensaje de Respuesta</label>
+                <textarea id="modalMensaje" rows="4" placeholder="Escribe tu respuesta o solución aquí..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-slate-900"></textarea>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-slate-600 uppercase">Adjuntar Archivo (Opcional)</label>
+                <input type="file" id="modalArchivo" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button onclick="cerrarModalResponder()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer">Cancelar</button>
+                <button id="btnEnviarRespuesta" onclick="enviarRespuestaEmail()" class="px-5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition cursor-pointer flex items-center gap-2">
+                    <span>📤 Enviar Respuesta</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="text-center py-6 text-xs text-slate-400 border-t border-slate-200 font-mono">
         Grupo Huerta // Panel de Control TI &copy; 2026
@@ -228,15 +261,13 @@
                         <td class="p-4">${estadoBadge}</td>
                         <td class="p-4">
                             <div class="flex items-center gap-2">
-                                <!-- Botón para contestar y enviar correo con EmailJS -->
-                                <button onclick="contestarTicket(${t.id}, '${t.correo}', '${t.solicitante}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl transition cursor-pointer border border-indigo-200">
+                                <!-- Botón que abre el Modal de Responder -->
+                                <button onclick="abrirModalResponder(${t.id}, '${t.correo}', '${t.solicitante}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl transition cursor-pointer border border-indigo-200">
                                     ✉️
                                 </button>
-                                <!-- Botón para cambiar estado a Resuelto -->
                                 <button onclick="cambiarEstado(${t.id}, 'Resuelto')" title="Marcar como Resuelto" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer border border-emerald-200">
                                     ✔️ Resuelto
                                 </button>
-                                <!-- Botón para Eliminar -->
                                 <button onclick="eliminarTicket(${t.id})" class="text-xs text-red-600 hover:bg-red-50 p-2 rounded-xl transition cursor-pointer border border-red-200">
                                     🗑️
                                 </button>
@@ -247,7 +278,81 @@
             });
         }
 
-        // Función para cambiar el estado del ticket en Supabase
+        // Variables globales temporales para el modal
+        let ticketActualId = null;
+        let correoActual = '';
+        let solicitanteActual = '';
+
+        window.abrirModalResponder = function(id, correo, solicitante) {
+            ticketActualId = id;
+            correoActual = correo;
+            solicitanteActual = solicitante;
+
+            document.getElementById('modalTicketId').innerText = `#${id}`;
+            document.getElementById('modalSolicitante').innerText = solicitante;
+            document.getElementById('modalCorreo').innerText = correo;
+            document.getElementById('modalMensaje').value = '';
+            document.getElementById('modalArchivo').value = '';
+
+            document.getElementById('modalResponder').classList.remove('hidden');
+        }
+
+        window.cerrarModalResponder = function() {
+            document.getElementById('modalResponder').classList.add('hidden');
+        }
+
+        // Función para enviar la respuesta junto con el archivo adjunto usando EmailJS
+        window.enviarRespuestaEmail = async function() {
+            const mensaje = document.getElementById('modalMensaje').value.trim();
+            const archivoInput = document.getElementById('modalArchivo');
+            const btnEnviar = document.getElementById('btnEnviarRespuesta');
+
+            if (!mensaje) {
+                alert('Por favor escribe un mensaje de respuesta.');
+                return;
+            }
+
+            btnEnviar.disabled = true;
+            btnEnviar.innerText = 'Enviando...';
+
+            let archivoBase64 = '';
+            if (archivoInput.files.length > 0) {
+                const archivo = archivoInput.files[0];
+                archivoBase64 = await toBase64(archivo);
+            }
+
+            const templateParams = {
+                to_email: correoActual,
+                to_name: solicitanteActual,
+                ticket_id: ticketActualId,
+                message: mensaje,
+                attachment: archivoBase64 // Asegúrate de tener configurado tu template en EmailJS si deseas recibir archivos adjuntos, o puedes omitirlo si solo va texto
+            };
+
+            emailjs.send('service_k1v73a8', 'template_8fhlm7f', templateParams)
+                .then(async function(response) {
+                    alert('¡Respuesta y correo enviados con éxito!');
+                    // Cambiar el estado a Resuelto automáticamente al contestar
+                    await supabase.from('tickets').update({ estado: 'Resuelto' }).eq('id', ticketActualId);
+                    cerrarModalResponder();
+                    cargarTickets();
+                }, function(error) {
+                    alert('Error al enviar el correo: ' + JSON.stringify(error));
+                })
+                .finally(() => {
+                    btnEnviar.disabled = false;
+                    btnEnviar.innerHTML = '<span>📤 Enviar Respuesta</span>';
+                });
+        }
+
+        // Utilidad para convertir archivo a Base64
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
         window.cambiarEstado = async function(id, nuevoEstado) {
             const { error } = await supabase.from('tickets').update({ estado: nuevoEstado }).eq('id', id);
             if (!error) {
@@ -255,31 +360,6 @@
             } else {
                 alert('Error al actualizar el estado: ' + error.message);
             }
-        }
-
-        // Función para contestar y mandar el correo con EmailJS
-        window.contestarTicket = async function(id, correo, solicitante) {
-            const respuesta = prompt(`Escribe el mensaje de respuesta para ${solicitante} (${correo}):`);
-            if (!respuesta || respuesta.trim() === "") return;
-
-            // Parámetros que se envían a tu plantilla de EmailJS 
-            // (Asegúrate de que tu plantilla en EmailJS tenga variables como {{to_email}}, {{to_name}}, {{message}}, {{ticket_id}})
-            const templateParams = {
-                to_email: correo,
-                to_name: solicitante,
-                ticket_id: id,
-                message: respuesta
-            };
-
-            // Reemplaza 'tu_service_id' y 'tu_template_id' con los IDs reales de tu cuenta de EmailJS
-            emailjs.send('service_k1v73a8', 'template_8fhlm7f', templateParams)
-                .then(function(response) {
-                    alert('¡Respuesta enviada con éxito al correo del usuario!');
-                    // Opcionalmente podemos marcarlo como resuelto al contestar
-                    cambiarEstado(id, 'Resuelto');
-                }, function(error) {
-                    alert('Error al enviar el correo: JSON.stringify(error)');
-                });
         }
 
         window.eliminarTicket = async function(id) {
@@ -319,9 +399,7 @@
             });
         }
 
-        // Lógica de Configuración (Sucursales, Categorías y Departamentos)
         async function cargarConfiguracion() {
-            // Sucursales
             const ulSuc = document.getElementById('listaSucursales');
             const { data: sucs, error: errSuc } = await supabase.from('config_sucursales').select('*').order('id');
             if (errSuc || !sucs || sucs.length === 0) {
@@ -335,7 +413,6 @@
                 `).join('');
             }
 
-            // Categorías
             const ulCat = document.getElementById('listaCategorias');
             const { data: cats, error: errCat } = await supabase.from('config_categorias').select('*').order('id');
             if (errCat || !cats || cats.length === 0) {
@@ -349,7 +426,6 @@
                 `).join('');
             }
 
-            // Departamentos
             const ulDep = document.getElementById('listaDepartamentos');
             const { data: deps, error: errDep } = await supabase.from('config_departamentos').select('*').order('id');
             if (errDep || !deps || deps.length === 0) {
