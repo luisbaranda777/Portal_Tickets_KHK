@@ -123,3 +123,18 @@ if (btnCerrarModal) {
         }
     });
 }
+// Dentro de tu función de envío de formulario de tickets:
+try {
+    await emailjs.send('service_lgevwzi', 'template_wshnuk5', {
+        to_name: solicitante,
+        to_email: correo,
+        folio: nuevoTicket.id,
+        sucursal: sucursal,
+        descripcion: descripcion,
+        estado: "Abierto",
+        respuesta: "Tu ticket ha sido creado correctamente y está pendiente de revisión por el equipo de soporte."
+    });
+    console.log("Correo de creación enviado exitosamente al usuario.");
+} catch (error) {
+    console.error("Error al enviar el correo de creación:", error);
+}

@@ -225,3 +225,20 @@ const btnActualizar = document.getElementById('btnActualizar');
 if (btnActualizar) {
     btnActualizar.addEventListener('click', cargarTickets);
 }
+// Dentro de tu función de guardar y responder en el modal del admin:
+if (respuestaAdmin.trim() !== "") {
+    try {
+        await emailjs.send('service_lgevwzi', 'template_bracaxp', {
+            to_name: t.solicitante,
+            to_email: t.correo,
+            folio: t.id,
+            sucursal: t.sucursal,
+            estado: t.estado,
+            respuesta: respuestaAdmin
+        });
+        alert("¡Cambios guardados y correo de respuesta enviado al usuario!");
+    } catch (error) {
+        console.error("Error al enviar el correo de respuesta:", error);
+        alert("Cambios guardados, pero falló el envío del correo.");
+    }
+}
