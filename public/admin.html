@@ -213,6 +213,10 @@
             tickets.forEach(t => {
                 let badge = t.urgencia?.includes('Alto') ? `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">🔴 Alto</span>` : t.urgencia?.includes('Medio') ? `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟡 Medio</span>` : `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟢 Bajo</span>`;
                 
+                let estadoBadge = t.estado === 'Resuelto' 
+                    ? `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full">Resuelto</span>`
+                    : `<span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">Abierto</span>`;
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-100/60 transition">
                         <td class="p-4 font-mono text-xs text-slate-500">#${t.id}<br>${new Date(t.created_at).toLocaleString()}</td>
@@ -221,15 +225,61 @@
                         <td class="p-4 text-xs font-medium">${t.categoria}</td>
                         <td class="p-4">${badge}</td>
                         <td class="p-4 max-w-xs truncate" title="${t.descripcion}">${t.descripcion}</td>
+                        <td class="p-4">${estadoBadge}</td>
                         <td class="p-4">
-                            <span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">${t.estado || 'Abierto'}</span>
-                        </td>
-                        <td class="p-4">
-                            <button onclick="eliminarTicket(${t.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer border border-red-200">Eliminar</button>
+                            <div class="flex items-center gap-2">
+                                <!-- Botón para contestar y enviar correo con EmailJS -->
+                                <button onclick="contestarTicket(${t.id}, '${t.correo}', '${t.solicitante}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl transition cursor-pointer border border-indigo-200">
+                                    ✉️
+                                </button>
+                                <!-- Botón para cambiar estado a Resuelto -->
+                                <button onclick="cambiarEstado(${t.id}, 'Resuelto')" title="Marcar como Resuelto" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer border border-emerald-200">
+                                    ✔️ Resuelto
+                                </button>
+                                <!-- Botón para Eliminar -->
+                                <button onclick="eliminarTicket(${t.id})" class="text-xs text-red-600 hover:bg-red-50 p-2 rounded-xl transition cursor-pointer border border-red-200">
+                                    🗑️
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        // Función para cambiar el estado del ticket en Supabase
+        window.cambiarEstado = async function(id, nuevoEstado) {
+            const { error } = await supabase.from('tickets').update({ estado: nuevoEstado }).eq('id', id);
+            if (!error) {
+                cargarTickets();
+            } else {
+                alert('Error al actualizar el estado: ' + error.message);
+            }
+        }
+
+        // Función para contestar y mandar el correo con EmailJS
+        window.contestarTicket = async function(id, correo, solicitante) {
+            const respuesta = prompt(`Escribe el mensaje de respuesta para ${solicitante} (${correo}):`);
+            if (!respuesta || respuesta.trim() === "") return;
+
+            // Parámetros que se envían a tu plantilla de EmailJS 
+            // (Asegúrate de que tu plantilla en EmailJS tenga variables como {{to_email}}, {{to_name}}, {{message}}, {{ticket_id}})
+            const templateParams = {
+                to_email: correo,
+                to_name: solicitante,
+                ticket_id: id,
+                message: respuesta
+            };
+
+            // Reemplaza 'tu_service_id' y 'tu_template_id' con los IDs reales de tu cuenta de EmailJS
+            emailjs.send('service_k1v73a8', 'template_8fhlm7f', templateParams)
+                .then(function(response) {
+                    alert('¡Respuesta enviada con éxito al correo del usuario!');
+                    // Opcionalmente podemos marcarlo como resuelto al contestar
+                    cambiarEstado(id, 'Resuelto');
+                }, function(error) {
+                    alert('Error al enviar el correo: JSON.stringify(error)');
+                });
         }
 
         window.eliminarTicket = async function(id) {
@@ -339,7 +389,6 @@
             if(!nombre) return;
             const { error } = await supabase.from('config_departamentos').insert([{ nombre }]);
             if (!error) { input.value = ''; cargarConfiguracion(); } else { alert('Error: ' + error.message); }
-            
         });
 
         window.eliminarConfig = async function(tabla, id) {
