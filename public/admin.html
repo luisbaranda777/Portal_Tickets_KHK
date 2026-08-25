@@ -55,7 +55,7 @@
 
     <!-- Contenido Principal Dinámico -->
     <main class="max-w-7xl mx-auto w-full p-6 my-8 flex-grow">
-        
+       
         <!-- SECCIÓN 1: DASHBOARD (Tickets) -->
         <div id="seccion-dashboard" class="space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -173,7 +173,7 @@
                 </h3>
                 <button onclick="cerrarModalResponder()" class="text-slate-400 hover:text-slate-600 text-lg font-bold cursor-pointer">&times;</button>
             </div>
-            
+           
             <div class="space-y-1">
                 <p class="text-xs text-slate-500">Para: <span id="modalSolicitante" class="font-semibold text-slate-700"></span> (<span id="modalCorreo" class="font-mono text-indigo-600"></span>)</p>
             </div>
@@ -245,8 +245,8 @@
             tbody.innerHTML = '';
             tickets.forEach(t => {
                 let badge = t.urgencia?.includes('Alto') ? `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">🔴 Alto</span>` : t.urgencia?.includes('Medio') ? `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟡 Medio</span>` : `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟢 Bajo</span>`;
-                
-                let estadoBadge = t.estado === 'Resuelto' 
+               
+                let estadoBadge = t.estado === 'Resuelto'
                     ? `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full">Resuelto</span>`
                     : `<span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">Abierto</span>`;
 
@@ -326,10 +326,10 @@
                 to_name: solicitanteActual,
                 ticket_id: ticketActualId,
                 message: mensaje,
-                attachment: archivoBase64 // Asegúrate de tener configurado tu template en EmailJS si deseas recibir archivos adjuntos, o puedes omitirlo si solo va texto
+                attachment: archivoBase64 
             };
 
-            emailjs.send('service_k1v73a8', 'template_8fhlm7f', templateParams)
+            emailjs.send('service_lgevwzi', 'template_8fhlm7f', templateParams)
                 .then(async function(response) {
                     alert('¡Respuesta y correo enviados con éxito!');
                     // Cambiar el estado a Resuelto automáticamente al contestar
@@ -476,7 +476,7 @@
 
         // Carga inicial
         cargarTickets();
-        cargarConfiguracion(); 
+        cargarConfiguracion();
         document.getElementById('btnActualizar').addEventListener('click', cargarTickets);
     </script>
 </body>
