@@ -63,7 +63,8 @@ if (ticketForm) {
         const archivoInput = document.getElementById('adjunto');
         const archivoNombre = archivoInput.files.length > 0 ? archivoInput.files[0].name : "Ninguno";
 
-        const { error } = await supabase
+        // Usamos .select() para traer de vuelta el registro insertado (incluyendo su ID autoincrementable)
+        const { data, error } = await supabase
             .from('tickets')
             .insert([{ 
                 sucursal, 
@@ -75,16 +76,50 @@ if (ticketForm) {
                 descripcion, 
                 archivo: archivoNombre, 
                 estado: 'Abierto' 
-            }]);
+            }])
+            .select();
 
         if (error) {
             console.error('Error al guardar el ticket:', error);
             alert('Hubo un error al crear el ticket: ' + error.message);
         } else {
-            alert(`¡Ticket creado con éxito y guardado en la base de datos!\n\nSucursal: ${sucursal}\nDepartamento: ${departamento}\nSolicitante: ${solicitante}`);
+            // Obtenemos el folio del ticket generado
+            const ticketGenerado = data && data.length > 0 ? data[0] : null;
+            const folioId = ticketGenerado ? ticketGenerado.id : 'N/D';
+
+            // Rellenamos los datos dinámicamente en el modal de éxito
+            const elFolio = document.getElementById('modalFolio');
+            const elSucursal = document.getElementById('modalSucursal');
+            const elDepartamento = document.getElementById('modalDepartamento');
+            const elSolicitante = document.getElementById('modalSolicitante');
+            const elUrgencia = document.getElementById('modalUrgencia');
+            const modalExito = document.getElementById('modalTicketExito');
+
+            if (elFolio) elFolio.textContent = `#${folioId}`;
+            if (elSucursal) elSucursal.textContent = sucursal;
+            if (elDepartamento) elDepartamento.textContent = departamento;
+            if (elSolicitante) elSolicitante.textContent = solicitante;
+            if (elUrgencia) elUrgencia.textContent = urgencia;
+
+            // Mostramos el modal interactivo
+            if (modalExito) {
+                modalExito.classList.remove('hidden');
+            }
+
+            // Reseteamos el formulario
             ticketForm.reset();
-            // Recargar opciones si es necesario
             cargarOpcionesFormulario();
+        }
+    });
+}
+
+// Evento para cerrar el modal interactivo al hacer clic en el botón
+const btnCerrarModal = document.getElementById('btnCerrarModal');
+if (btnCerrarModal) {
+    btnCerrarModal.addEventListener('click', function() {
+        const modalExito = document.getElementById('modalTicketExito');
+        if (modalExito) {
+            modalExito.classList.add('hidden');
         }
     });
 }
