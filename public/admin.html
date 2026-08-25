@@ -235,7 +235,6 @@
             if (seccion === 'configuracion') cargarConfiguracion();
         }
 
-        // Variable global para guardar los datos del ticket seleccionado actual
         let ticketActualCompleto = null;
 
         async function cargarTickets() {
@@ -249,11 +248,21 @@
             tickets.forEach(t => {
                 let badge = t.urgencia?.includes('Alto') ? `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">🔴 Alto</span>` : t.urgencia?.includes('Medio') ? `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟡 Medio</span>` : `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟢 Bajo</span>`;
                
-                let estadoBadge = t.estado === 'Resuelto'
-                    ? `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full">Resuelto</span>`
-                    : `<span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">Abierto</span>`;
+                // Selector desplegable dinámico para el estado
+                let estadoSelect = `
+                    <select onchange="cambiarEstadoSelect(${t.id}, this)" class="text-xs font-semibold px-3 py-1.5 rounded-full border outline-none cursor-pointer transition ${
+                        t.estado === 'Resuelto' 
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+                            : t.estado === 'En Proceso'
+                            ? 'bg-amber-100 text-amber-800 border-amber-300'
+                            : 'bg-sky-100 text-sky-800 border-sky-300'
+                    }">
+                        <option value="Abierto" ${t.estado === 'Abierto' ? 'selected' : ''}>Abierto</option>
+                        <option value="En Proceso" ${t.estado === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                        <option value="Resuelto" ${t.estado === 'Resuelto' ? 'selected' : ''}>Resuelto</option>
+                    </select>
+                `;
 
-                // Guardamos el objeto ticket convertido a string seguro para pasarlo por parámetro
                 const ticketJson = encodeURIComponent(JSON.stringify(t));
 
                 tbody.innerHTML += `
@@ -264,17 +273,13 @@
                         <td class="p-4 text-xs font-medium">${t.categoria}</td>
                         <td class="p-4">${badge}</td>
                         <td class="p-4 max-w-xs truncate" title="${t.descripcion}">${t.descripcion}</td>
-                        <td class="p-4">${estadoBadge}</td>
+                        <td class="p-4">${estadoSelect}</td>
                         <td class="p-4">
                             <div class="flex items-center gap-2">
-                                <!-- Botón que abre el Modal de Responder -->
                                 <button onclick="abrirModalResponder('${ticketJson}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl transition cursor-pointer border border-indigo-200">
                                     ✉️
                                 </button>
-                                <button onclick="cambiarEstado(${t.id}, 'Resuelto')" title="Marcar como Resuelto" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer border border-emerald-200">
-                                    ✔️ Resuelto
-                                </button>
-                                <button onclick="eliminarTicket(${t.id})" class="text-xs text-red-600 hover:bg-red-50 p-2 rounded-xl transition cursor-pointer border border-red-200">
+                                <button onclick="eliminarTicket(${t.id})" class="text-xs text-red-600 hover:bg-red-50 p-2 rounded-xl transition cursor-pointer border border-red-200" title="Eliminar ticket">
                                     🗑️
                                 </button>
                             </div>
@@ -300,7 +305,6 @@
             document.getElementById('modalResponder').classList.add('hidden');
         }
 
-        // Función para enviar la respuesta usando las variables exactas de tu plantilla EmailJS
         window.enviarRespuestaEmail = async function() {
             const mensaje = document.getElementById('modalMensaje').value.trim();
             const archivoInput = document.getElementById('modalArchivo');
@@ -325,21 +329,19 @@
                 archivoBase64 = await toBase64(archivo);
             }
 
-            // Parámetros adaptados exactamente a las variables de tu plantilla template_bracaxp
             const templateParams = {
-                email: ticketActualCompleto.correo,          // Mapea con {{email}}
-                to_name: ticketActualCompleto.solicitante,   // Mapea con {{to_name}}
-                folio: ticketActualCompleto.id,              // Mapea con {{folio}}
-                sucursal: ticketActualCompleto.sucursal,     // Mapea con {{sucursal}}
-                estado: 'Resuelto',                          // Mapea con {{estado}}
-                respuesta: mensaje,                          // Mapea con {{respuesta}}
-                attachment: archivoBase64                    // Archivo adjunto (si tu plantilla lo soporta)
+                email: ticketActualCompleto.correo,
+                to_name: ticketActualCompleto.solicitante,
+                folio: ticketActualCompleto.id,
+                sucursal: ticketActualCompleto.sucursal,
+                estado: 'Resuelto',
+                respuesta: mensaje,
+                attachment: archivoBase64
             };
 
             emailjs.send('service_lgevwzi', 'template_bracaxp', templateParams)
                 .then(async function(response) {
                     alert('¡Respuesta y correo enviados con éxito!');
-                    // Cambiar el estado del ticket a Resuelto automáticamente
                     await supabase.from('tickets').update({ estado: 'Resuelto' }).eq('id', ticketActualCompleto.id);
                     cerrarModalResponder();
                     cargarTickets();
@@ -352,7 +354,6 @@
                 });
         }
 
-        // Utilidad para convertir archivo a Base64
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -360,10 +361,12 @@
             reader.onerror = error => reject(error);
         });
 
-        window.cambiarEstado = async function(id, nuevoEstado) {
+        // Función que actualiza el estado directamente desde el menú desplegable en la tabla
+        window.cambiarEstadoSelect = async function(id, selectElement) {
+            const nuevoEstado = selectElement.value;
             const { error } = await supabase.from('tickets').update({ estado: nuevoEstado }).eq('id', id);
             if (!error) {
-                cargarTickets();
+                cargarTickets(); // Recarga para actualizar colores y diseño del select
             } else {
                 alert('Error al actualizar el estado: ' + error.message);
             }
