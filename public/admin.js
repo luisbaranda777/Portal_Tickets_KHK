@@ -32,7 +32,58 @@ window.cambiarSeccion = function(seccion) {
     if (seccion === 'configuracion') cargarConfiguracion();
 }
 
-// Cargar listado de tickets en el Dashboard
+// Función global para actualizar el estado, categoría y urgencia de un ticket desde el panel
+window.actualizarTicket = async function(id) {
+    const estadoSelect = document.getElementById(`estado-${id}`);
+    const categoriaSelect = document.getElementById(`categoria-${id}`);
+    const urgenciaSelect = document.getElementById(`urgencia-${id}`);
+
+    const nuevoEstado = estadoSelect.value;
+    const nuevaCategoria = categoriaSelect.value;
+    const nuevaUrgencia = urgenciaSelect.value;
+
+    const { data: ticketsActualizados, error } = await supabase
+        .from('tickets')
+        .update({ 
+            estado: nuevoEstado, 
+            categoria: nuevaCategoria, 
+            urgencia: nuevaUrgencia 
+        })
+        .eq('id', id)
+        .select();
+
+    if (error) {
+        console.error('Error al actualizar el ticket:', error);
+        alert('Hubo un error al actualizar los datos: ' + error.message);
+        return;
+    }
+
+    const t = ticketsActualizados && ticketsActualizados.length > 0 ? ticketsActualizados[0] : null;
+
+    // Si cambió el estatus o se respondió, opcionalmente puedes disparar el correo mediante EmailJS si lo manejas aquí
+    if (t && t.correo) {
+        try {
+            await emailjs.send('service_lgevwzi', 'template_bracaxp', {
+                to_name: t.solicitante,
+                to_email: t.correo,
+                folio: t.id,
+                sucursal: t.sucursal,
+                estado: t.estado,
+                respuesta: `Tu ticket ha sido actualizado. Nuevo estado: ${t.estado}, Urgencia: ${t.urgencia}, Categoría: ${t.categoria}`
+            });
+            alert("¡Ticket actualizado y notificación enviada por correo al usuario!");
+        } catch (mailError) {
+            console.error("Error al enviar el correo de respuesta:", mailError);
+            alert("¡Ticket actualizado correctamente en Supabase, pero falló el envío del correo!");
+        }
+    } else {
+        alert("¡Ticket actualizado correctamente!");
+    }
+
+    cargarTickets(); // Recargar la tabla para reflejar los cambios
+}
+
+// Cargar listado de tickets en el Dashboard con opciones editables
 async function cargarTickets() {
     const tbody = document.getElementById('tablaTickets');
     if (!tbody) return;
@@ -58,27 +109,39 @@ async function cargarTickets() {
     tickets.forEach(ticket => {
         const fechaFormateada = new Date(ticket.created_at).toLocaleString();
 
-        let badgeUrgencia = '';
-        if (ticket.urgencia?.includes('Alto')) {
-            badgeUrgencia = `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">🔴 Alto</span>`;
-        } else if (ticket.urgencia?.includes('Medio')) {
-            badgeUrgencia = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟡 Medio</span>`;
-        } else {
-            badgeUrgencia = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟢 Bajo</span>`;
-        }
-
         tbody.innerHTML += `
-            <tr class="hover:bg-slate-100/60 transition">
+            <tr class="hover:bg-slate-100/60 transition align-top">
                 <td class="p-4 font-mono text-xs text-slate-500">#${ticket.id}<br>${fechaFormateada}</td>
                 <td class="p-4 font-semibold text-slate-900">${ticket.sucursal}</td>
                 <td class="p-4">${ticket.solicitante}<br><span class="text-xs text-slate-400">${ticket.correo}</span></td>
-                <td class="p-4 text-xs font-medium">${ticket.categoria}</td>
-                <td class="p-4">${badgeUrgencia}</td>
-                <td class="p-4 max-w-xs truncate" title="${ticket.descripcion}">${ticket.descripcion}</td>
+                
+                <!-- Tipo de Problema / Categoría (Editable) -->
                 <td class="p-4">
-                    <span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                        ${ticket.estado || 'Abierto'}
-                    </span>
+                    <input type="text" id="categoria-${ticket.id}" value="${ticket.categoria || ''}" class="border border-slate-300 rounded px-2 py-1 text-xs w-full bg-white">
+                </td>
+
+                <!-- Urgencia (Editable) -->
+                <td class="p-4">
+                    <select id="urgencia-${ticket.id}" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white font-medium">
+                        <option value="🟢 Bajo" ${ticket.urgencia?.includes('Bajo') ? 'selected' : ''}>🟢 Bajo</option>
+                        <option value="🟡 Medio" ${ticket.urgencia?.includes('Medio') ? 'selected' : ''}>🟡 Medio</option>
+                        <option value="🔴 Alto" ${ticket.urgencia?.includes('Alto') ? 'selected' : ''}>🔴 Alto</option>
+                    </select>
+                </td>
+
+                <td class="p-4 max-w-xs truncate" title="${ticket.descripcion}">${ticket.descripcion}</td>
+                
+                <!-- Estado (Editable) + Botón de Guardar -->
+                <td class="p-4 space-y-2">
+                    <select id="estado-${ticket.id}" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white font-semibold text-sky-800">
+                        <option value="Abierto" ${ticket.estado === 'Abierto' ? 'selected' : ''}>Abierto</option>
+                        <option value="En Proceso" ${ticket.estado === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                        <option value="Cerrado" ${ticket.estado === 'Cerrado' ? 'selected' : ''}>Cerrado</option>
+                    </select>
+                    <br>
+                    <button onclick="actualizarTicket(${ticket.id})" class="bg-slate-900 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-slate-800 transition cursor-pointer">
+                        Guardar
+                    </button>
                 </td>
             </tr>
         `;
@@ -168,7 +231,7 @@ async function cargarConfiguracion() {
     }
 }
 
-// Event Listeners para formularios de inserción
+// Event Listeners para formularios de inserción de configuración
 const formSucursal = document.getElementById('formSucursal');
 if (formSucursal) {
     formSucursal.addEventListener('submit', async (e) => {
@@ -224,21 +287,4 @@ cargarConfiguracion();
 const btnActualizar = document.getElementById('btnActualizar');
 if (btnActualizar) {
     btnActualizar.addEventListener('click', cargarTickets);
-}
-// Dentro de tu función de guardar y responder en el modal del admin:
-if (respuestaAdmin.trim() !== "") {
-    try {
-        await emailjs.send('service_lgevwzi', 'template_bracaxp', {
-            to_name: t.solicitante,
-            to_email: t.correo,
-            folio: t.id,
-            sucursal: t.sucursal,
-            estado: t.estado,
-            respuesta: respuestaAdmin
-        });
-        alert("¡Cambios guardados y correo de respuesta enviado al usuario!");
-    } catch (error) {
-        console.error("Error al enviar el correo de respuesta:", error);
-        alert("Cambios guardados, pero falló el envío del correo.");
-    }
 }
