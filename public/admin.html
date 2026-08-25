@@ -54,7 +54,7 @@
     </header>
 
     <!-- Contenido Principal Dinámico -->
-    <main class="max-w-6xl mx-auto w-full p-6 my-8 flex-grow">
+    <main class="max-w-7xl mx-auto w-full p-6 my-8 flex-grow">
         
         <!-- SECCIÓN 1: DASHBOARD (Tickets) -->
         <div id="seccion-dashboard" class="space-y-6">
@@ -80,10 +80,11 @@
                                 <th class="p-4">Urgencia</th>
                                 <th class="p-4">Descripción</th>
                                 <th class="p-4">Estado</th>
+                                <th class="p-4">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tablaTickets" class="divide-y divide-slate-200 text-slate-700">
-                            <tr><td colspan="7" class="p-6 text-center text-slate-400">Cargando tickets...</td></tr>
+                            <tr><td colspan="8" class="p-6 text-center text-slate-400">Cargando tickets...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -205,12 +206,13 @@
             const tbody = document.getElementById('tablaTickets');
             const { data: tickets, error } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
             if (error || !tickets || tickets.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No hay tickets registrados.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No hay tickets registrados.</td></tr>`;
                 return;
             }
             tbody.innerHTML = '';
             tickets.forEach(t => {
                 let badge = t.urgencia?.includes('Alto') ? `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">🔴 Alto</span>` : t.urgencia?.includes('Medio') ? `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟡 Medio</span>` : `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟢 Bajo</span>`;
+                
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-100/60 transition">
                         <td class="p-4 font-mono text-xs text-slate-500">#${t.id}<br>${new Date(t.created_at).toLocaleString()}</td>
@@ -219,10 +221,26 @@
                         <td class="p-4 text-xs font-medium">${t.categoria}</td>
                         <td class="p-4">${badge}</td>
                         <td class="p-4 max-w-xs truncate" title="${t.descripcion}">${t.descripcion}</td>
-                        <td class="p-4"><span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">${t.estado || 'Abierto'}</span></td>
+                        <td class="p-4">
+                            <span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">${t.estado || 'Abierto'}</span>
+                        </td>
+                        <td class="p-4">
+                            <button onclick="eliminarTicket(${t.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer border border-red-200">Eliminar</button>
+                        </td>
                     </tr>
                 `;
             });
+        }
+
+        window.eliminarTicket = async function(id) {
+            if(confirm("¿Estás seguro de eliminar este ticket?")) {
+                const { error } = await supabase.from('tickets').delete().eq('id', id);
+                if (!error) {
+                    cargarTickets();
+                } else {
+                    alert('Error al eliminar el ticket');
+                }
+            }
         }
 
         async function cargarUsuarios() {
@@ -321,6 +339,7 @@
             if(!nombre) return;
             const { error } = await supabase.from('config_departamentos').insert([{ nombre }]);
             if (!error) { input.value = ''; cargarConfiguracion(); } else { alert('Error: ' + error.message); }
+            
         });
 
         window.eliminarConfig = async function(tabla, id) {
