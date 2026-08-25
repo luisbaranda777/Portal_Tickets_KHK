@@ -87,6 +87,21 @@ if (ticketForm) {
             const ticketGenerado = data && data.length > 0 ? data[0] : null;
             const folioId = ticketGenerado ? ticketGenerado.id : 'N/D';
 
+            // Disparar correo de EmailJS con los nombres de variables correctos
+            try {
+                await emailjs.send('service_lgevwzi', 'template_wshnuk5', {
+                    "to-email": correo,
+                    "to_name": solicitante,
+                    "folio": folioId,
+                    "sucursal": sucursal,
+                    "descripcion": descripcion,
+                    "estado": "Abierto"
+                });
+                console.log("Correo de creación enviado exitosamente al usuario.");
+            } catch (mailError) {
+                console.error("Error al enviar el correo de creación:", mailError);
+            }
+
             // Rellenamos los datos dinámicamente en el modal de éxito
             const elFolio = document.getElementById('modalFolio');
             const elSucursal = document.getElementById('modalSucursal');
@@ -122,19 +137,4 @@ if (btnCerrarModal) {
             modalExito.classList.add('hidden');
         }
     });
-}
-// Dentro de tu función de envío de formulario de tickets:
-try {
-    await emailjs.send('service_lgevwzi', 'template_wshnuk5', {
-        to_name: solicitante,
-        to_email: correo,
-        folio: nuevoTicket.id,
-        sucursal: sucursal,
-        descripcion: descripcion,
-        estado: "Abierto",
-        respuesta: "Tu ticket ha sido creado correctamente y está pendiente de revisión por el equipo de soporte."
-    });
-    console.log("Correo de creación enviado exitosamente al usuario.");
-} catch (error) {
-    console.error("Error al enviar el correo de creación:", error);
 }
