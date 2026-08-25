@@ -60,7 +60,6 @@ window.actualizarTicket = async function(id) {
 
     const t = ticketsActualizados && ticketsActualizados.length > 0 ? ticketsActualizados[0] : null;
 
-    // Si cambió el estatus o se respondió, opcionalmente puedes disparar el correo mediante EmailJS si lo manejas aquí
     if (t && t.correo) {
         try {
             await emailjs.send('service_lgevwzi', 'template_bracaxp', {
@@ -80,7 +79,7 @@ window.actualizarTicket = async function(id) {
         alert("¡Ticket actualizado correctamente!");
     }
 
-    cargarTickets(); // Recargar la tabla para reflejar los cambios
+    cargarTickets();
 }
 
 // Cargar listado de tickets en el Dashboard con opciones editables
@@ -115,7 +114,7 @@ async function cargarTickets() {
                 <td class="p-4 font-semibold text-slate-900">${ticket.sucursal}</td>
                 <td class="p-4">${ticket.solicitante}<br><span class="text-xs text-slate-400">${ticket.correo}</span></td>
                 
-                <!-- Tipo de Problema / Categoría (Editable) -->
+                <!-- Categoría / Tipo de Problema (Editable) -->
                 <td class="p-4">
                     <input type="text" id="categoria-${ticket.id}" value="${ticket.categoria || ''}" class="border border-slate-300 rounded px-2 py-1 text-xs w-full bg-white">
                 </td>
@@ -180,9 +179,8 @@ async function cargarUsuarios() {
     });
 }
 
-// Cargar las configuraciones dinámicas (Sucursales, Categorías y Departamentos)
+// Cargar configuraciones dinámicas
 async function cargarConfiguracion() {
-    // 1. Sucursales
     const ulSuc = document.getElementById('listaSucursales');
     if (ulSuc) {
         const { data: sucs, error: errSuc } = await supabase.from('config_sucursales').select('*').order('id');
@@ -198,7 +196,6 @@ async function cargarConfiguracion() {
         }
     }
 
-    // 2. Categorías
     const ulCat = document.getElementById('listaCategorias');
     if (ulCat) {
         const { data: cats, error: errCat } = await supabase.from('config_categorias').select('*').order('id');
@@ -214,7 +211,6 @@ async function cargarConfiguracion() {
         }
     }
 
-    // 3. Departamentos
     const ulDep = document.getElementById('listaDepartamentos');
     if (ulDep) {
         const { data: deps, error: errDep } = await supabase.from('config_departamentos').select('*').order('id');
@@ -231,7 +227,6 @@ async function cargarConfiguracion() {
     }
 }
 
-// Event Listeners para formularios de inserción de configuración
 const formSucursal = document.getElementById('formSucursal');
 if (formSucursal) {
     formSucursal.addEventListener('submit', async (e) => {
@@ -268,7 +263,6 @@ if (formDepartamento) {
     });
 }
 
-// Función global para eliminar elementos de configuración
 window.eliminarConfig = async function(tabla, id) {
     if (confirm("¿Estás seguro de eliminar este elemento?")) {
         const { error } = await supabase.from(tabla).delete().eq('id', id);
@@ -280,7 +274,6 @@ window.eliminarConfig = async function(tabla, id) {
     }
 }
 
-// Inicialización de la vista
 cargarTickets();
 cargarConfiguracion();
 
