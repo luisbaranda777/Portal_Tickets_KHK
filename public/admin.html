@@ -235,6 +235,9 @@
             if (seccion === 'configuracion') cargarConfiguracion();
         }
 
+        // Variable global para guardar los datos del ticket seleccionado actual
+        let ticketActualCompleto = null;
+
         async function cargarTickets() {
             const tbody = document.getElementById('tablaTickets');
             const { data: tickets, error } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
@@ -250,6 +253,9 @@
                     ? `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full">Resuelto</span>`
                     : `<span class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-full">Abierto</span>`;
 
+                // Guardamos el objeto ticket convertido a string seguro para pasarlo por parámetro
+                const ticketJson = encodeURIComponent(JSON.stringify(t));
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-100/60 transition">
                         <td class="p-4 font-mono text-xs text-slate-500">#${t.id}<br>${new Date(t.created_at).toLocaleString()}</td>
@@ -262,7 +268,7 @@
                         <td class="p-4">
                             <div class="flex items-center gap-2">
                                 <!-- Botón que abre el Modal de Responder -->
-                                <button onclick="abrirModalResponder(${t.id}, '${t.correo}', '${t.solicitante}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl transition cursor-pointer border border-indigo-200">
+                                <button onclick="abrirModalResponder('${ticketJson}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl transition cursor-pointer border border-indigo-200">
                                     ✉️
                                 </button>
                                 <button onclick="cambiarEstado(${t.id}, 'Resuelto')" title="Marcar como Resuelto" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer border border-emerald-200">
@@ -278,19 +284,12 @@
             });
         }
 
-        // Variables globales temporales para el modal
-        let ticketActualId = null;
-        let correoActual = '';
-        let solicitanteActual = '';
+        window.abrirModalResponder = function(ticketEncoded) {
+            ticketActualCompleto = JSON.parse(decodeURIComponent(ticketEncoded));
 
-        window.abrirModalResponder = function(id, correo, solicitante) {
-            ticketActualId = id;
-            correoActual = correo;
-            solicitanteActual = solicitante;
-
-            document.getElementById('modalTicketId').innerText = `#${id}`;
-            document.getElementById('modalSolicitante').innerText = solicitante;
-            document.getElementById('modalCorreo').innerText = correo;
+            document.getElementById('modalTicketId').innerText = `#${ticketActualCompleto.id}`;
+            document.getElementById('modalSolicitante').innerText = ticketActualCompleto.solicitante;
+            document.getElementById('modalCorreo').innerText = ticketActualCompleto.correo;
             document.getElementById('modalMensaje').value = '';
             document.getElementById('modalArchivo').value = '';
 
@@ -301,7 +300,7 @@
             document.getElementById('modalResponder').classList.add('hidden');
         }
 
-        // Función para enviar la respuesta junto con el archivo adjunto usando EmailJS
+        // Función para enviar la respuesta usando las variables exactas de tu plantilla EmailJS
         window.enviarRespuestaEmail = async function() {
             const mensaje = document.getElementById('modalMensaje').value.trim();
             const archivoInput = document.getElementById('modalArchivo');
@@ -309,6 +308,11 @@
 
             if (!mensaje) {
                 alert('Por favor escribe un mensaje de respuesta.');
+                return;
+            }
+
+            if (!ticketActualCompleto) {
+                alert('No se ha seleccionado ningún ticket.');
                 return;
             }
 
@@ -321,19 +325,22 @@
                 archivoBase64 = await toBase64(archivo);
             }
 
+            // Parámetros adaptados exactamente a las variables de tu plantilla template_bracaxp
             const templateParams = {
-                to_email: correoActual,
-                to_name: solicitanteActual,
-                ticket_id: ticketActualId,
-                message: mensaje,
-                attachment: archivoBase64 
+                email: ticketActualCompleto.correo,          // Mapea con {{email}}
+                to_name: ticketActualCompleto.solicitante,   // Mapea con {{to_name}}
+                folio: ticketActualCompleto.id,              // Mapea con {{folio}}
+                sucursal: ticketActualCompleto.sucursal,     // Mapea con {{sucursal}}
+                estado: 'Resuelto',                          // Mapea con {{estado}}
+                respuesta: mensaje,                          // Mapea con {{respuesta}}
+                attachment: archivoBase64                    // Archivo adjunto (si tu plantilla lo soporta)
             };
 
             emailjs.send('service_lgevwzi', 'template_bracaxp', templateParams)
                 .then(async function(response) {
                     alert('¡Respuesta y correo enviados con éxito!');
-                    // Cambiar el estado a Resuelto automáticamente al contestar
-                    await supabase.from('tickets').update({ estado: 'Resuelto' }).eq('id', ticketActualId);
+                    // Cambiar el estado del ticket a Resuelto automáticamente
+                    await supabase.from('tickets').update({ estado: 'Resuelto' }).eq('id', ticketActualCompleto.id);
                     cerrarModalResponder();
                     cargarTickets();
                 }, function(error) {
