@@ -21,12 +21,12 @@ window.cambiarSeccion = function(seccion) {
     document.getElementById('seccion-usuarios').classList.add('hidden');
     document.getElementById('seccion-configuracion').classList.add('hidden');
 
-    document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
-    document.getElementById('nav-usuarios').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
-    document.getElementById('nav-configuracion').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+    document.getElementById('nav-dashboard').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+    document.getElementById('nav-usuarios').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+    document.getElementById('nav-configuracion').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
 
     document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
-    document.getElementById(`nav-${seccion}`).className = "px-4 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer";
+    document.getElementById(`nav-${seccion}`).className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer";
 
     if (seccion === 'usuarios') cargarUsuarios();
     if (seccion === 'configuracion') cargarConfiguracion();
@@ -82,11 +82,24 @@ window.actualizarTicket = async function(id) {
     cargarTickets();
 }
 
-// Cargar listado de tickets en el Dashboard con opciones editables
+// Función para alternar el acordeón de descripción en la tabla
+window.toggleAcordeon = function(id) {
+    const filaAcordeon = document.getElementById(`acordeon-${id}`);
+    const flecha = document.getElementById(`flecha-${id}`);
+    if (filaAcordeon.classList.contains('hidden')) {
+        filaAcordeon.classList.remove('hidden');
+        flecha.style.transform = 'rotate(180deg)';
+    } else {
+        filaAcordeon.classList.add('hidden');
+        flecha.style.transform = 'rotate(0deg)';
+    }
+}
+
+// Cargar listado de tickets en el Dashboard con opciones editables y formato compacto
 async function cargarTickets() {
     const tbody = document.getElementById('tablaTickets');
     if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Cargando tickets...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Cargando tickets...</td></tr>`;
 
     const { data: tickets, error } = await supabase
         .from('tickets')
@@ -95,32 +108,32 @@ async function cargarTickets() {
 
     if (error) {
         console.error('Error al cargar tickets:', error);
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-500">Error al cargar los datos de Supabase.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500">Error al cargar los datos de Supabase.</td></tr>`;
         return;
     }
 
     if (tickets.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No hay tickets registrados todavía.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">No hay tickets registrados todavía.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = '';
     tickets.forEach(ticket => {
-        const fechaFormateada = new Date(ticket.created_at).toLocaleString();
+        const fechaFormateada = new Date(ticket.created_at).toLocaleDateString();
 
         tbody.innerHTML += `
             <tr class="hover:bg-slate-100/60 transition align-top">
-                <td class="p-4 font-mono text-xs text-slate-500">#${ticket.id}<br>${fechaFormateada}</td>
-                <td class="p-4 font-semibold text-slate-900">${ticket.sucursal}</td>
-                <td class="p-4">${ticket.solicitante}<br><span class="text-xs text-slate-400">${ticket.correo}</span></td>
+                <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">#${ticket.id}<br>${fechaFormateada}</td>
+                <td class="py-2.5 px-3 font-semibold text-slate-900">${ticket.sucursal}</td>
+                <td class="py-2.5 px-3">${ticket.solicitante}<br><span class="text-[11px] text-slate-400">${ticket.correo}</span></td>
                 
                 <!-- Categoría / Tipo de Problema (Editable) -->
-                <td class="p-4">
+                <td class="py-2.5 px-3">
                     <input type="text" id="categoria-${ticket.id}" value="${ticket.categoria || ''}" class="border border-slate-300 rounded px-2 py-1 text-xs w-full bg-white">
                 </td>
 
                 <!-- Urgencia (Editable) -->
-                <td class="p-4">
+                <td class="py-2.5 px-3">
                     <select id="urgencia-${ticket.id}" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white font-medium">
                         <option value="🟢 Bajo" ${ticket.urgencia?.includes('Bajo') ? 'selected' : ''}>🟢 Bajo</option>
                         <option value="🟡 Medio" ${ticket.urgencia?.includes('Medio') ? 'selected' : ''}>🟡 Medio</option>
@@ -128,19 +141,34 @@ async function cargarTickets() {
                     </select>
                 </td>
 
-                <td class="p-4 max-w-xs truncate" title="${ticket.descripcion}">${ticket.descripcion}</td>
+                <!-- Descripción con Acordeón -->
+                <td class="py-2.5 px-3">
+                    <button onclick="toggleAcordeon(${ticket.id})" class="text-indigo-600 hover:text-indigo-900 font-medium underline flex items-center gap-1 cursor-pointer">
+                        <span>Ver descripción</span>
+                        <span id="flecha-${ticket.id}" class="transition-transform duration-200">▼</span>
+                    </button>
+                </td>
                 
                 <!-- Estado (Editable) + Botón de Guardar -->
-                <td class="p-4 space-y-2">
+                <td class="py-2.5 px-3 space-y-1.5">
                     <select id="estado-${ticket.id}" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white font-semibold text-sky-800">
                         <option value="Abierto" ${ticket.estado === 'Abierto' ? 'selected' : ''}>Abierto</option>
                         <option value="En Proceso" ${ticket.estado === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
                         <option value="Cerrado" ${ticket.estado === 'Cerrado' ? 'selected' : ''}>Cerrado</option>
                     </select>
                     <br>
-                    <button onclick="actualizarTicket(${ticket.id})" class="bg-slate-900 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-slate-800 transition cursor-pointer">
+                    <button onclick="actualizarTicket(${ticket.id})" class="bg-slate-900 text-white px-2.5 py-1 rounded text-xs font-semibold hover:bg-slate-800 transition cursor-pointer">
                         Guardar
                     </button>
+                </td>
+            </tr>
+            <!-- Fila Acordeón Oculta -->
+            <tr id="acordeon-${ticket.id}" class="hidden bg-slate-100/50 border-t border-slate-100">
+                <td colspan="7" class="p-3">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 text-slate-700 text-xs space-y-1">
+                        <span class="font-bold text-slate-900">Descripción detallada de la incidencia:</span>
+                        <p class="whitespace-pre-wrap leading-relaxed">${ticket.descripcion}</p>
+                    </div>
                 </td>
             </tr>
         `;
@@ -163,7 +191,7 @@ async function cargarUsuarios() {
     
     const unicos = Object.values(mapa);
     if (!unicos.length) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-400">Sin usuarios registrados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Sin usuarios registrados.</td></tr>`;
         return;
     }
     
@@ -171,9 +199,9 @@ async function cargarUsuarios() {
     unicos.forEach(u => {
         tbody.innerHTML += `
             <tr class="hover:bg-slate-100/60 transition">
-                <td class="p-4 font-semibold text-slate-900">${u.nombre}</td>
-                <td class="p-4 text-slate-600 font-mono text-xs">${u.correo}</td>
-                <td class="p-4 font-mono"><span class="bg-slate-200 text-slate-800 text-xs px-2.5 py-1 rounded-full font-bold">${u.total} ticket(s)</span></td>
+                <td class="py-2.5 px-3 font-semibold text-slate-900">${u.nombre}</td>
+                <td class="py-2.5 px-3 text-slate-600 font-mono text-[11px]">${u.correo}</td>
+                <td class="py-2.5 px-3 font-mono"><span class="bg-slate-200 text-slate-800 text-[11px] px-2.5 py-0.5 rounded-full font-bold">${u.total} ticket(s)</span></td>
             </tr>
         `;
     });
@@ -188,9 +216,9 @@ async function cargarConfiguracion() {
             ulSuc.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin sucursales</li>';
         } else {
             ulSuc.innerHTML = sucs.map(s => `
-                <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                <li class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
                     <span class="font-medium text-slate-800">🏢 ${s.nombre}</span>
-                    <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-[11px] text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                 </li>
             `).join('');
         }
@@ -203,9 +231,9 @@ async function cargarConfiguracion() {
             ulCat.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin categorías</li>';
         } else {
             ulCat.innerHTML = cats.map(c => `
-                <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                <li class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
                     <span class="font-medium text-slate-800">🏷️ ${c.nombre}</span>
-                    <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-[11px] text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                 </li>
             `).join('');
         }
@@ -218,9 +246,9 @@ async function cargarConfiguracion() {
             ulDep.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin departamentos</li>';
         } else {
             ulDep.innerHTML = deps.map(d => `
-                <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                <li class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
                     <span class="font-medium text-slate-800">📂 ${d.nombre}</span>
-                    <button onclick="eliminarConfig('config_departamentos', ${d.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                    <button onclick="eliminarConfig('config_departamentos', ${d.id})" class="text-[11px] text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                 </li>
             `).join('');
         }

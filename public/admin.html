@@ -21,30 +21,30 @@
 <body class="bg-white text-slate-800 min-h-screen flex flex-col justify-between">
 
     <!-- Header con Menú de Navegación -->
-    <header class="bg-white border-b border-slate-200 shadow-sm py-4 px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <header class="bg-white border-b border-slate-200 shadow-sm py-3 px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
             <div class="flex items-center space-x-3">
-                <img src="logo.png" alt="Grupo Huerta Logo" class="h-10 w-auto object-contain">
+                <img src="logo.png" alt="Grupo Huerta Logo" class="h-9 w-auto object-contain">
                 <span class="font-mono font-bold text-sm text-slate-500"> // PANEL TI</span>
             </div>
         </div>
 
         <!-- Menú Desplegable / Secciones -->
         <nav class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-            <button onclick="cambiarSeccion('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer">
+            <button onclick="cambiarSeccion('dashboard')" id="nav-dashboard" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer">
                 📊 Dashboard
             </button>
-            <button onclick="cambiarSeccion('usuarios')" id="nav-usuarios" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+            <button onclick="cambiarSeccion('usuarios')" id="nav-usuarios" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
                 👥 Usuarios
             </button>
-            <button onclick="cambiarSeccion('configuracion')" id="nav-configuracion" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+            <button onclick="cambiarSeccion('configuracion')" id="nav-configuracion" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
                 ⚙️ Config. Formulario
             </button>
         </nav>
 
         <!-- Acciones Derecha -->
         <div class="flex items-center space-x-3">
-            <a href="index.html" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition">
+            <a href="index.html" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition">
                 + Ir al Formulario
             </a>
             <button id="btnCerrarSesion" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl transition border border-red-200 cursor-pointer">
@@ -54,37 +54,37 @@
     </header>
 
     <!-- Contenido Principal Dinámico -->
-    <main class="max-w-7xl mx-auto w-full p-6 my-8 flex-grow">
+    <main class="max-w-7xl mx-auto w-full p-6 my-4 flex-grow">
        
         <!-- SECCIÓN 1: DASHBOARD (Tickets) -->
-        <div id="seccion-dashboard" class="space-y-6">
+        <div id="seccion-dashboard" class="space-y-4">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Tickets Recientes</h2>
-                    <p class="text-sm text-slate-500">Listado general de incidencias reportadas por las sucursales.</p>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">Tickets Recientes</h2>
+                    <p class="text-xs text-slate-500">Listado general de incidencias reportadas por las sucursales.</p>
                 </div>
-                <button id="btnActualizar" class="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow transition cursor-pointer">
+                <button id="btnActualizar" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow transition cursor-pointer">
                     🔄 Actualizar Lista
                 </button>
             </div>
 
             <div class="bg-slate-50 border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-mono text-xs uppercase tracking-wider">
-                                <th class="p-4">ID / Fecha</th>
-                                <th class="p-4">Sucursal</th>
-                                <th class="p-4">Solicitante</th>
-                                <th class="p-4">Categoría</th>
-                                <th class="p-4">Urgencia</th>
-                                <th class="p-4">Descripción</th>
-                                <th class="p-4">Estado</th>
-                                <th class="p-4">Acciones</th>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-mono uppercase tracking-wider">
+                                <th class="py-3 px-3">ID / Fecha</th>
+                                <th class="py-3 px-3">Sucursal</th>
+                                <th class="py-3 px-3">Solicitante</th>
+                                <th class="py-3 px-3">Categoría</th>
+                                <th class="py-3 px-3">Urgencia</th>
+                                <th class="py-3 px-3">Descripción</th>
+                                <th class="py-3 px-3">Estado</th>
+                                <th class="py-3 px-3">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tablaTickets" class="divide-y divide-slate-200 text-slate-700">
-                            <tr><td colspan="8" class="p-6 text-center text-slate-400">Cargando tickets...</td></tr>
+                            <tr><td colspan="8" class="p-4 text-center text-slate-400">Cargando tickets...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -92,24 +92,24 @@
         </div>
 
         <!-- SECCIÓN 2: USUARIOS -->
-        <div id="seccion-usuarios" class="space-y-6 hidden">
+        <div id="seccion-usuarios" class="space-y-4 hidden">
             <div>
-                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Directorio de Usuarios</h2>
-                <p class="text-sm text-slate-500">Listado único de nombres y correos de quienes han levantado tickets.</p>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Directorio de Usuarios</h2>
+                <p class="text-xs text-slate-500">Listado único de nombres y correos de quienes han levantado tickets.</p>
             </div>
 
             <div class="bg-slate-50 border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-mono text-xs uppercase tracking-wider">
-                                <th class="p-4">Nombre del Solicitante</th>
-                                <th class="p-4">Correo Electrónico</th>
-                                <th class="p-4">Total de Tickets Registrados</th>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-mono uppercase tracking-wider">
+                                <th class="py-3 px-3">Nombre del Solicitante</th>
+                                <th class="py-3 px-3">Correo Electrónico</th>
+                                <th class="py-3 px-3">Total de Tickets Registrados</th>
                             </tr>
                         </thead>
                         <tbody id="tablaUsuarios" class="divide-y divide-slate-200 text-slate-700">
-                            <tr><td colspan="3" class="p-6 text-center text-slate-400">Cargando usuarios...</td></tr>
+                            <tr><td colspan="3" class="p-4 text-center text-slate-400">Cargando usuarios...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -117,45 +117,45 @@
         </div>
 
         <!-- SECCIÓN 3: CONFIGURACIÓN DE FORMULARIO -->
-        <div id="seccion-configuracion" class="space-y-8 hidden">
+        <div id="seccion-configuracion" class="space-y-6 hidden">
             <div>
-                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Configuración del Formulario</h2>
-                <p class="text-sm text-slate-500">Agrega o elimina las opciones que aparecen en los selectores del formulario de tickets.</p>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Configuración del Formulario</h2>
+                <p class="text-xs text-slate-500">Agrega o elimina las opciones que aparecen en los selectores del formulario de tickets.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Administrar Sucursales -->
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-800 text-lg">🏢 Sucursales</h3>
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                    <h3 class="font-bold text-slate-800 text-sm">🏢 Sucursales</h3>
                     <form id="formSucursal" class="flex gap-2">
-                        <input type="text" id="nuevaSucursal" required placeholder="Nueva sucursal..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
-                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
+                        <input type="text" id="nuevaSucursal" required placeholder="Nueva sucursal..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2 text-xs outline-none focus:ring-2 focus:ring-slate-900">
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-2 rounded-xl text-xs transition cursor-pointer">Agregar</button>
                     </form>
-                    <ul id="listaSucursales" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
+                    <ul id="listaSucursales" class="space-y-2 text-xs text-slate-700 max-h-60 overflow-y-auto">
                         <li class="text-slate-400 text-center py-2">Cargando...</li>
                     </ul>
                 </div>
 
                 <!-- Administrar Categorías -->
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-800 text-lg">🏷️ Categorías</h3>
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                    <h3 class="font-bold text-slate-800 text-sm">🏷️ Categorías</h3>
                     <form id="formCategoria" class="flex gap-2">
-                        <input type="text" id="nuevaCategoria" required placeholder="Nueva categoría..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
-                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
+                        <input type="text" id="nuevaCategoria" required placeholder="Nueva categoría..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2 text-xs outline-none focus:ring-2 focus:ring-slate-900">
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-2 rounded-xl text-xs transition cursor-pointer">Agregar</button>
                     </form>
-                    <ul id="listaCategorias" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
+                    <ul id="listaCategorias" class="space-y-2 text-xs text-slate-700 max-h-60 overflow-y-auto">
                         <li class="text-slate-400 text-center py-2">Cargando...</li>
                     </ul>
                 </div>
 
                 <!-- Administrar Departamentos / Áreas -->
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-800 text-lg">📂 Departamentos</h3>
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                    <h3 class="font-bold text-slate-800 text-sm">📂 Departamentos</h3>
                     <form id="formDepartamento" class="flex gap-2">
-                        <input type="text" id="nuevoDepartamento" required placeholder="Nuevo departamento..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-900">
-                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition cursor-pointer">Agregar</button>
+                        <input type="text" id="nuevoDepartamento" required placeholder="Nuevo departamento..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2 text-xs outline-none focus:ring-2 focus:ring-slate-900">
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-2 rounded-xl text-xs transition cursor-pointer">Agregar</button>
                     </form>
-                    <ul id="listaDepartamentos" class="space-y-2 text-sm text-slate-700 max-h-60 overflow-y-auto">
+                    <ul id="listaDepartamentos" class="space-y-2 text-xs text-slate-700 max-h-60 overflow-y-auto">
                         <li class="text-slate-400 text-center py-2">Cargando...</li>
                     </ul>
                 </div>
@@ -166,10 +166,10 @@
 
     <!-- VENTANA MODAL FLOTANTE PARA CONTESTAR TICKET -->
     <div id="modalResponder" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 border border-slate-200 animate-in fade-in zoom-in duration-200">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 border border-slate-200">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
-                    ✉️ Responder Ticket <span id="modalTicketId" class="text-slate-400 font-mono text-sm"></span>
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                    ✉️ Responder Ticket <span id="modalTicketId" class="text-slate-400 font-mono text-xs"></span>
                 </h3>
                 <button onclick="cerrarModalResponder()" class="text-slate-400 hover:text-slate-600 text-lg font-bold cursor-pointer">&times;</button>
             </div>
@@ -178,19 +178,19 @@
                 <p class="text-xs text-slate-500">Para: <span id="modalSolicitante" class="font-semibold text-slate-700"></span> (<span id="modalCorreo" class="font-mono text-indigo-600"></span>)</p>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-1.5">
                 <label class="block text-xs font-semibold text-slate-600 uppercase">Mensaje de Respuesta</label>
-                <textarea id="modalMensaje" rows="4" placeholder="Escribe tu respuesta o solución aquí..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-slate-900"></textarea>
+                <textarea id="modalMensaje" rows="4" placeholder="Escribe tu respuesta o solución aquí..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs outline-none focus:ring-2 focus:ring-slate-900"></textarea>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-1.5">
                 <label class="block text-xs font-semibold text-slate-600 uppercase">Adjuntar Archivo (Opcional)</label>
                 <input type="file" id="modalArchivo" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
             </div>
 
             <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
                 <button onclick="cerrarModalResponder()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer">Cancelar</button>
-                <button id="btnEnviarRespuesta" onclick="enviarRespuestaEmail()" class="px-5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition cursor-pointer flex items-center gap-2">
+                <button id="btnEnviarRespuesta" onclick="enviarRespuestaEmail()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition cursor-pointer flex items-center gap-2">
                     <span>📤 Enviar Respuesta</span>
                 </button>
             </div>
@@ -198,7 +198,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="text-center py-6 text-xs text-slate-400 border-t border-slate-200 font-mono">
+    <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 font-mono">
         Grupo Huerta // Panel de Control TI &copy; 2026
     </footer>
 
@@ -224,12 +224,12 @@
             document.getElementById('seccion-usuarios').classList.add('hidden');
             document.getElementById('seccion-configuracion').classList.add('hidden');
 
-            document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
-            document.getElementById('nav-usuarios').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
-            document.getElementById('nav-configuracion').className = "px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            document.getElementById('nav-dashboard').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            document.getElementById('nav-usuarios').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            document.getElementById('nav-configuracion').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
 
             document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
-            document.getElementById(`nav-${seccion}`).className = "px-4 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer";
+            document.getElementById(`nav-${seccion}`).className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer";
 
             if (seccion === 'usuarios') cargarUsuarios();
             if (seccion === 'configuracion') cargarConfiguracion();
@@ -241,16 +241,15 @@
             const tbody = document.getElementById('tablaTickets');
             const { data: tickets, error } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
             if (error || !tickets || tickets.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No hay tickets registrados.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">No hay tickets registrados.</td></tr>`;
                 return;
             }
             tbody.innerHTML = '';
             tickets.forEach(t => {
-                let badge = t.urgencia?.includes('Alto') ? `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">🔴 Alto</span>` : t.urgencia?.includes('Medio') ? `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟡 Medio</span>` : `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold">🟢 Bajo</span>`;
+                let badge = t.urgencia?.includes('Alto') ? `<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[11px] font-semibold">🔴 Alto</span>` : t.urgencia?.includes('Medio') ? `<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[11px] font-semibold">🟡 Medio</span>` : `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[11px] font-semibold">🟢 Bajo</span>`;
                
-                // Selector desplegable dinámico para el estado
                 let estadoSelect = `
-                    <select onchange="cambiarEstadoSelect(${t.id}, this)" class="text-xs font-semibold px-3 py-1.5 rounded-full border outline-none cursor-pointer transition ${
+                    <select onchange="cambiarEstadoSelect(${t.id}, this)" class="text-xs font-semibold px-2 py-1 rounded-full border outline-none cursor-pointer transition ${
                         t.estado === 'Resuelto' 
                             ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
                             : t.estado === 'En Proceso'
@@ -265,28 +264,56 @@
 
                 const ticketJson = encodeURIComponent(JSON.stringify(t));
 
+                // Fila principal compacta + Fila desplegable oculta para la descripción (Acordeón)
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-100/60 transition">
-                        <td class="p-4 font-mono text-xs text-slate-500">#${t.id}<br>${new Date(t.created_at).toLocaleString()}</td>
-                        <td class="p-4 font-semibold text-slate-900">${t.sucursal}</td>
-                        <td class="p-4">${t.solicitante}<br><span class="text-xs text-slate-400">${t.correo}</span></td>
-                        <td class="p-4 text-xs font-medium">${t.categoria}</td>
-                        <td class="p-4">${badge}</td>
-                        <td class="p-4 max-w-xs truncate" title="${t.descripcion}">${t.descripcion}</td>
-                        <td class="p-4">${estadoSelect}</td>
-                        <td class="p-4">
-                            <div class="flex items-center gap-2">
-                                <button onclick="abrirModalResponder('${ticketJson}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl transition cursor-pointer border border-indigo-200">
+                        <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">#${t.id}<br>${new Date(t.created_at).toLocaleDateString()}</td>
+                        <td class="py-2.5 px-3 font-semibold text-slate-900">${t.sucursal}</td>
+                        <td class="py-2.5 px-3">${t.solicitante}<br><span class="text-[11px] text-slate-400">${t.correo}</span></td>
+                        <td class="py-2.5 px-3 font-medium">${t.categoria}</td>
+                        <td class="py-2.5 px-3">${badge}</td>
+                        <td class="py-2.5 px-3">
+                            <button onclick="toggleAcordeon(${t.id})" class="text-indigo-600 hover:text-indigo-900 font-medium underline flex items-center gap-1 cursor-pointer">
+                                <span>Ver descripción</span>
+                                <span id="flecha-${t.id}" class="transition-transform duration-200">▼</span>
+                            </button>
+                        </td>
+                        <td class="py-2.5 px-3">${estadoSelect}</td>
+                        <td class="py-2.5 px-3">
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="abrirModalResponder('${ticketJson}')" title="Contestar y enviar correo" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-1.5 rounded-xl transition cursor-pointer border border-indigo-200">
                                     ✉️
                                 </button>
-                                <button onclick="eliminarTicket(${t.id})" class="text-xs text-red-600 hover:bg-red-50 p-2 rounded-xl transition cursor-pointer border border-red-200" title="Eliminar ticket">
+                                <button onclick="eliminarTicket(${t.id})" class="text-red-600 hover:bg-red-50 p-1.5 rounded-xl transition cursor-pointer border border-red-200" title="Eliminar ticket">
                                     🗑️
                                 </button>
                             </div>
                         </td>
                     </tr>
+                    <!-- Fila Acordeón Oculta -->
+                    <tr id="acordeon-${t.id}" class="hidden bg-slate-100/50 border-t border-slate-100">
+                        <td colspan="8" class="p-3">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-slate-700 text-xs space-y-1">
+                                <span class="font-bold text-slate-900">Descripción detallada de la incidencia:</span>
+                                <p class="whitespace-pre-wrap leading-relaxed">${t.descripcion}</p>
+                            </div>
+                        </td>
+                    </tr>
                 `;
             });
+        }
+
+        // Función para alternar el acordeón de descripción
+        window.toggleAcordeon = function(id) {
+            const filaAcordeon = document.getElementById(`acordeon-${id}`);
+            const flecha = document.getElementById(`flecha-${id}`);
+            if (filaAcordeon.classList.contains('hidden')) {
+                filaAcordeon.classList.remove('hidden');
+                flecha.style.transform = 'rotate(180deg)';
+            } else {
+                filaAcordeon.classList.add('hidden');
+                flecha.style.transform = 'rotate(0deg)';
+            }
         }
 
         window.abrirModalResponder = function(ticketEncoded) {
@@ -361,12 +388,11 @@
             reader.onerror = error => reject(error);
         });
 
-        // Función que actualiza el estado directamente desde el menú desplegable en la tabla
         window.cambiarEstadoSelect = async function(id, selectElement) {
             const nuevoEstado = selectElement.value;
             const { error } = await supabase.from('tickets').update({ estado: nuevoEstado }).eq('id', id);
             if (!error) {
-                cargarTickets(); // Recarga para actualizar colores y diseño del select
+                cargarTickets();
             } else {
                 alert('Error al actualizar el estado: ' + error.message);
             }
@@ -394,16 +420,16 @@
             });
             const unicos = Object.values(mapa);
             if (!unicos.length) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-400">Sin usuarios.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Sin usuarios.</td></tr>`;
                 return;
             }
             tbody.innerHTML = '';
             unicos.forEach(u => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-100/60 transition">
-                        <td class="p-4 font-semibold text-slate-900">${u.nombre}</td>
-                        <td class="p-4 text-slate-600 font-mono text-xs">${u.correo}</td>
-                        <td class="p-4 font-mono"><span class="bg-slate-200 text-slate-800 text-xs px-2.5 py-1 rounded-full font-bold">${u.total} ticket(s)</span></td>
+                        <td class="py-2.5 px-3 font-semibold text-slate-900">${u.nombre}</td>
+                        <td class="py-2.5 px-3 text-slate-600 font-mono text-[11px]">${u.correo}</td>
+                        <td class="py-2.5 px-3 font-mono"><span class="bg-slate-200 text-slate-800 text-[11px] px-2.5 py-0.5 rounded-full font-bold">${u.total} ticket(s)</span></td>
                     </tr>
                 `;
             });
@@ -416,9 +442,9 @@
                 ulSuc.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin sucursales</li>';
             } else {
                 ulSuc.innerHTML = sucs.map(s => `
-                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                    <li class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
                         <span class="font-medium text-slate-800">🏢 ${s.nombre}</span>
-                        <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                        <button onclick="eliminarConfig('config_sucursales', ${s.id})" class="text-[11px] text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                     </li>
                 `).join('');
             }
@@ -429,9 +455,9 @@
                 ulCat.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin categorías</li>';
             } else {
                 ulCat.innerHTML = cats.map(c => `
-                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                    <li class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
                         <span class="font-medium text-slate-800">🏷️ ${c.nombre}</span>
-                        <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                        <button onclick="eliminarConfig('config_categorias', ${c.id})" class="text-[11px] text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                     </li>
                 `).join('');
             }
@@ -442,9 +468,9 @@
                 ulDep.innerHTML = '<li class="text-slate-400 text-center py-2 bg-white rounded-xl border border-slate-200">Sin departamentos</li>';
             } else {
                 ulDep.innerHTML = deps.map(d => `
-                    <li class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
+                    <li class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs">
                         <span class="font-medium text-slate-800">📂 ${d.nombre}</span>
-                        <button onclick="eliminarConfig('config_departamentos', ${d.id})" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
+                        <button onclick="eliminarConfig('config_departamentos', ${d.id})" class="text-[11px] text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer">Eliminar</button>
                     </li>
                 `).join('');
             }
