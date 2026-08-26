@@ -217,13 +217,13 @@ async function cargarTickets() {
     });
 }
 
-// Cargar reporte de tickets agrupados por Agencia / Sucursal
+// Cargar reporte de tickets agrupados por Agencia / Sucursal con desglose de estados
 async function cargarUsuarios() {
     const tbody = document.getElementById('tablaUsuarios');
     if (!tbody) return;
     
-    // Consultamos sucursal, solicitante y correo de los tickets
-    const { data: tickets, error } = await supabase.from('tickets').select('sucursal, solicitante, correo');
+    // Consultamos sucursal, solicitante, correo y estado de los tickets
+    const { data: tickets, error } = await supabase.from('tickets').select('sucursal, solicitante, correo, estado');
     
     if (error) {
         console.error('Error al cargar datos para el reporte de agencias:', error);
@@ -249,10 +249,16 @@ async function cargarUsuarios() {
             mapaSucursales[suc].solicitantesMap[correoKey] = {
                 nombre: t.solicitante || 'Anónimo',
                 correo: t.correo || '',
-                cantidad: 0
+                cantidad: 0,
+                estados: {}
             };
         }
-        mapaSucursales[suc].solicitantesMap[correoKey].cantidad++;
+        
+        const solicitanteObj = mapaSucursales[suc].solicitantesMap[correoKey];
+        solicitanteObj.cantidad++;
+
+        const estadoActual = t.estado || 'Abierto';
+        solicitanteObj.estados[estadoActual] = (solicitanteObj.estados[estadoActual] || 0) + 1;
     });
     
     const sucursalesArray = Object.keys(mapaSucursales).map(suc => ({
@@ -268,18 +274,31 @@ async function cargarUsuarios() {
     
     tbody.innerHTML = '';
     sucursalesArray.forEach(item => {
-        // Generamos la lista de solicitantes para esta sucursal
-        const listaSolicitantesHTML = item.solicitantes.map(s => `
-            <div class="flex items-center justify-between bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200/60 mb-1 last:mb-0">
-                <div>
-                    <span class="font-semibold text-slate-900">${s.nombre}</span>
-                    <span class="text-[11px] text-slate-400 ml-1">(${s.correo})</span>
+        // Generamos la lista de solicitantes para esta sucursal con sus estados
+        const listaSolicitantesHTML = item.solicitantes.map(s => {
+            const estadosBadges = Object.entries(s.estados).map(([est, count]) => {
+                let badgeClass = 'bg-sky-100 text-sky-800 border-sky-300';
+                if (est === 'Resuelto' || est === 'Cerrado') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                if (est === 'En Proceso') badgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                
+                return `<span class="${badgeClass} text-[10px] px-2 py-0.5 rounded-full font-semibold border ml-1">${est}: ${count}</span>`;
+            }).join('');
+
+            return `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/60 mb-1.5 last:mb-0 gap-2">
+                    <div>
+                        <span class="font-semibold text-slate-900">${s.nombre}</span>
+                        <span class="text-[11px] text-slate-400 ml-1">(${s.correo})</span>
+                    </div>
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                            Total: ${s.cantidad}
+                        </span>
+                        ${estadosBadges}
+                    </div>
                 </div>
-                <span class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                    ${s.cantidad} ticket(s)
-                </span>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         tbody.innerHTML += `
             <tr class="hover:bg-slate-100/40 transition align-top">
@@ -292,7 +311,7 @@ async function cargarUsuarios() {
                     </span>
                 </td>
                 <td class="p-4">
-                    <div class="space-y-1 max-w-md">
+                    <div class="space-y-1 max-w-xl">
                         ${listaSolicitantesHTML}
                     </div>
                 </td>
