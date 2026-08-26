@@ -35,7 +35,7 @@
                 📊 Dashboard
             </button>
             <button onclick="cambiarSeccion('usuarios')" id="nav-usuarios" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                👥 Usuarios
+                🏢 Agencias / Sucursales
             </button>
             <button onclick="cambiarSeccion('configuracion')" id="nav-configuracion" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
                 ⚙️ Config. Formulario
@@ -91,11 +91,11 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 2: USUARIOS -->
+        <!-- SECCIÓN 2: AGENCIAS Y USUARIOS -->
         <div id="seccion-usuarios" class="space-y-4 hidden">
             <div>
-                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Directorio de Usuarios</h2>
-                <p class="text-xs text-slate-500">Listado único de nombres y correos de quienes han levantado tickets.</p>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Reporte por Sucursales / Agencias</h2>
+                <p class="text-xs text-slate-500">Cantidad de tickets generados por cada agencia y los solicitantes correspondientes.</p>
             </div>
 
             <div class="bg-slate-50 border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
@@ -103,13 +103,13 @@
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
                             <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-mono uppercase tracking-wider">
-                                <th class="py-3 px-3">Nombre del Solicitante</th>
-                                <th class="py-3 px-3">Correo Electrónico</th>
-                                <th class="py-3 px-3">Total de Tickets Registrados</th>
+                                <th class="py-3 px-4">Agencia / Sucursal</th>
+                                <th class="py-3 px-4">Total de Tickets</th>
+                                <th class="py-3 px-4">Solicitantes (Quiénes han mandado)</th>
                             </tr>
                         </thead>
                         <tbody id="tablaUsuarios" class="divide-y divide-slate-200 text-slate-700">
-                            <tr><td colspan="3" class="p-4 text-center text-slate-400">Cargando usuarios...</td></tr>
+                            <tr><td colspan="3" class="p-4 text-center text-slate-400">Cargando agencias...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -264,7 +264,6 @@
 
                 const ticketJson = encodeURIComponent(JSON.stringify(t));
 
-                // Fila principal compacta + Fila desplegable oculta para la descripción (Acordeón)
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-100/60 transition">
                         <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">#${t.id}<br>${new Date(t.created_at).toLocaleDateString()}</td>
@@ -290,7 +289,6 @@
                             </div>
                         </td>
                     </tr>
-                    <!-- Fila Acordeón Oculta -->
                     <tr id="acordeon-${t.id}" class="hidden bg-slate-100/50 border-t border-slate-100">
                         <td colspan="8" class="p-3">
                             <div class="bg-white p-3 rounded-xl border border-slate-200 text-slate-700 text-xs space-y-1">
@@ -303,7 +301,6 @@
             });
         }
 
-        // Función para alternar el acordeón de descripción
         window.toggleAcordeon = function(id) {
             const filaAcordeon = document.getElementById(`acordeon-${id}`);
             const flecha = document.getElementById(`flecha-${id}`);
@@ -409,27 +406,82 @@
             }
         }
 
+        // NUEVA FUNCIÓN PARA CARGAR EL REPORTE AGRUPADO POR AGENCIA / SUCURSAL
         async function cargarUsuarios() {
             const tbody = document.getElementById('tablaUsuarios');
-            const { data: tickets } = await supabase.from('tickets').select('solicitante, correo');
-            const mapa = {};
-            tickets?.forEach(t => {
-                let k = t.correo?.toLowerCase() || 'desc';
-                if (!mapa[k]) mapa[k] = { nombre: t.solicitante, correo: t.correo, total: 0 };
-                mapa[k].total++;
-            });
-            const unicos = Object.values(mapa);
-            if (!unicos.length) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Sin usuarios.</td></tr>`;
+            if (!tbody) return;
+            
+            const { data: tickets, error } = await supabase.from('tickets').select('sucursal, solicitante, correo');
+            
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Error al cargar los datos.</td></tr>`;
                 return;
             }
+
+            const mapaSucursales = {};
+            
+            tickets?.forEach(t => {
+                const suc = t.sucursal ? t.sucursal.trim() : 'Sin sucursal';
+                if (!mapaSucursales[suc]) {
+                    mapaSucursales[suc] = {
+                        totalTickets: 0,
+                        solicitantesMap: {}
+                    };
+                }
+                
+                mapaSucursales[suc].totalTickets++;
+
+                const correoKey = t.correo ? t.correo.toLowerCase() : 'sin-correo';
+                if (!mapaSucursales[suc].solicitantesMap[correoKey]) {
+                    mapaSucursales[suc].solicitantesMap[correoKey] = {
+                        nombre: t.solicitante || 'Anónimo',
+                        correo: t.correo || '',
+                        cantidad: 0
+                    };
+                }
+                mapaSucursales[suc].solicitantesMap[correoKey].cantidad++;
+            });
+            
+            const sucursalesArray = Object.keys(mapaSucursales).map(suc => ({
+                nombreSucursal: suc,
+                total: mapaSucursales[suc].totalTickets,
+                solicitantes: Object.values(mapaSucursales[suc].solicitantesMap)
+            }));
+
+            if (!sucursalesArray.length) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Sin registros de agencias todavía.</td></tr>`;
+                return;
+            }
+            
             tbody.innerHTML = '';
-            unicos.forEach(u => {
+            sucursalesArray.forEach(item => {
+                const listaSolicitantesHTML = item.solicitantes.map(s => `
+                    <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-xl border border-slate-200 mb-1 last:mb-0 shadow-2xs">
+                        <div>
+                            <span class="font-semibold text-slate-900">${s.nombre}</span>
+                            <span class="text-[11px] text-slate-400 ml-1">(${s.correo})</span>
+                        </div>
+                        <span class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                            ${s.cantidad} ticket(s)
+                        </span>
+                    </div>
+                `).join('');
+
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-100/60 transition">
-                        <td class="py-2.5 px-3 font-semibold text-slate-900">${u.nombre}</td>
-                        <td class="py-2.5 px-3 text-slate-600 font-mono text-[11px]">${u.correo}</td>
-                        <td class="py-2.5 px-3 font-mono"><span class="bg-slate-200 text-slate-800 text-[11px] px-2.5 py-0.5 rounded-full font-bold">${u.total} ticket(s)</span></td>
+                    <tr class="hover:bg-slate-100/60 transition align-top">
+                        <td class="py-3 px-4 font-bold text-slate-900">
+                            🏢 ${item.nombreSucursal}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="bg-slate-900 text-white text-xs px-2.5 py-1 rounded-full font-bold">
+                                ${item.total} total
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="space-y-1 max-w-md">
+                                ${listaSolicitantesHTML}
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
