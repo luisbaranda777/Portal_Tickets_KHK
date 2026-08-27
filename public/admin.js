@@ -186,32 +186,41 @@ window.eliminarTicket = async function(id) {
     }
 }
 
-// --- FUNCIONES DE AGENCIAS / SUCURSALES ---
+// --- FUNCIONES DE AGENCIAS / SUCURSALES (Corregida) ---
 async function cargarUsuarios() {
     const tbody = document.getElementById('tablaUsuarios');
     if (!tbody) return;
     
     const { data: tickets, error } = await supabase.from('tickets').select('sucursal, solicitante, correo, estado');
     if (error) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Error al cargar los datos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Error al cargar: ${error.message}</td></tr>`;
+        return;
+    }
+
+    if (!tickets || tickets.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Sin registros de agencias todavía.</td></tr>`;
         return;
     }
 
     const mapaSucursales = {};
-    tickets?.forEach(t => {
+    tickets.forEach(t => {
         const suc = t.sucursal ? t.sucursal.trim() : 'Sin sucursal';
         if (!mapaSucursales[suc]) {
             mapaSucursales[suc] = { totalTickets: 0, solicitantesMap: {} };
         }
         mapaSucursales[suc].totalTickets++;
 
-        const correoKey = t.correo ? t.correo.toLowerCase() : 'sin-correo';
+        const correoKey = t.correo ? t.correo.toLowerCase().trim() : 'sin-correo';
         if (!mapaSucursales[suc].solicitantesMap[correoKey]) {
             mapaSucursales[suc].solicitantesMap[correoKey] = { nombre: t.solicitante || 'Anónimo', correo: t.correo || '', cantidad: 0, estados: {} };
         }
         const sObj = mapaSucursales[suc].solicitantesMap[correoKey];
         sObj.cantidad++;
-        const est = t.estado || 'Abierto';
+        
+        let estRaw = (t.estado || 'Abierto').trim();
+        let est = estRaw.charAt(0).toUpperCase() + estRaw.slice(1).toLowerCase();
+        if(est === 'En proceso') est = 'En Proceso';
+
         sObj.estados[est] = (sObj.estados[est] || 0) + 1;
     });
     
@@ -220,11 +229,6 @@ async function cargarUsuarios() {
         total: mapaSucursales[suc].totalTickets,
         solicitantes: Object.values(mapaSucursales[suc].solicitantesMap)
     }));
-
-    if (!sucursalesArray.length) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Sin registros de agencias todavía.</td></tr>`;
-        return;
-    }
     
     tbody.innerHTML = '';
     sucursalesArray.forEach(item => {
@@ -233,7 +237,7 @@ async function cargarUsuarios() {
                 let badgeClass = 'bg-sky-100 text-sky-800 border-sky-300';
                 if (est === 'Resuelto' || est === 'Cerrado') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
                 if (est === 'En Proceso') badgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
-                return `<span class="${badgeClass} text-[10px] px-2 py-0.5 rounded-full font-semibold border ml-1">${est}: ${count}</span>`;
+                return `<span class="${badgeClass} text-[10px] px-2.5 py-0.5 rounded-full font-semibold border ml-1">${est}: ${count}</span>`;
             }).join('');
 
             return `
