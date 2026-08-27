@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Soporte TI KHK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-slate-800 min-h-screen flex flex-col justify-between">
+    <header class="bg-white border-b border-slate-200 shadow-sm py-3 px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+            <img src="logo.png" alt="Logo" class="h-9 w-auto object-contain">
+            <span class="font-mono font-bold text-sm text-slate-500"> // PANEL TI</span>
+        </div>
+        <nav class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 text-xs">
+            <a href="tickets.html" class="px-4 py-1.5 rounded-lg font-semibold text-slate-600 hover:text-slate-900">📊 Dashboard</a>
+            <a href="sucursales.html" class="px-4 py-1.5 rounded-lg font-semibold text-slate-600 hover:text-slate-900">🏢 Agencias / Sucursales</a>
+            <a href="configuracion.html" class="px-4 py-1.5 rounded-lg font-semibold bg-white text-slate-900 shadow-sm">⚙️ Config. Formulario</a>
+        </nav>
+        <div class="flex items-center space-x-3">
+            <a href="index.html" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition">+ Ir al Formulario</a>
+            <button id="btnCerrarSesion" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl transition border border-red-200 cursor-pointer">Salir</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto w-full p-6 my-4 flex-grow space-y-6">
+        <div>
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Configuración del Formulario</h2>
+            <p class="text-xs text-slate-500">Agrega o elimina las opciones que aparecen en los selectores del formulario de tickets.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <h3 class="font-bold text-slate-800 text-sm">🏢 Sucursales</h3>
+                <form id="formSucursal" class="flex gap-2">
+                    <input type="text" id="nuevaSucursal" required placeholder="Nueva sucursal..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2 text-xs outline-none">
+                    <button type="submit" class="bg-slate-900 text-white font-semibold px-3 py-2 rounded-xl text-xs cursor-pointer">Agregar</button>
+                </form>
+                <ul id="listaSucursales" class="space-y-2 text-xs text-slate-700 max-h-60 overflow-y-auto"><li class="text-slate-400 text-center py-2">Cargando...</li></ul>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <h3 class="font-bold text-slate-800 text-sm">🏷️ Categorías</h3>
+                <form id="formCategoria" class="flex gap-2">
+                    <input type="text" id="nuevaCategoria" required placeholder="Nueva categoría..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2 text-xs outline-none">
+                    <button type="submit" class="bg-slate-900 text-white font-semibold px-3 py-2 rounded-xl text-xs cursor-pointer">Agregar</button>
+                </form>
+                <ul id="listaCategorias" class="space-y-2 text-xs text-slate-700 max-h-60 overflow-y-auto"><li class="text-slate-400 text-center py-2">Cargando...</li></ul>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <h3 class="font-bold text-slate-800 text-sm">📂 Departamentos</h3>
+                <form id="formDepartamento" class="flex gap-2">
+                    <input type="text" id="nuevoDepartamento" required placeholder="Nuevo departamento..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2 text-xs outline-none">
+                    <button type="submit" class="bg-slate-900 text-white font-semibold px-3 py-2 rounded-xl text-xs cursor-pointer">Agregar</button>
+                </form>
+                <ul id="listaDepartamentos" class="space-y-2 text-xs text-slate-700 max-h-60 overflow-y-auto"><li class="text-slate-400 text-center py-2">Cargando...</li></ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 font-mono">Grupo Huerta // Panel de Control TI &copy; 2026</footer>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

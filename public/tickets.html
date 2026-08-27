@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets Recientes - Soporte TI KHK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){ emailjs.init({ publicKey: "XSqSiQX2QnQXf2-GV" }); })();
+    </script>
+</head>
+<body class="bg-white text-slate-800 min-h-screen flex flex-col justify-between">
+    <header class="bg-white border-b border-slate-200 shadow-sm py-3 px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+            <img src="logo.png" alt="Logo" class="h-9 w-auto object-contain">
+            <span class="font-mono font-bold text-sm text-slate-500"> // PANEL TI</span>
+        </div>
+        <nav class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 text-xs">
+            <a href="tickets.html" class="px-4 py-1.5 rounded-lg font-semibold bg-white text-slate-900 shadow-sm">📊 Dashboard</a>
+            <a href="sucursales.html" class="px-4 py-1.5 rounded-lg font-semibold text-slate-600 hover:text-slate-900">🏢 Agencias / Sucursales</a>
+            <a href="configuracion.html" class="px-4 py-1.5 rounded-lg font-semibold text-slate-600 hover:text-slate-900">⚙️ Config. Formulario</a>
+        </nav>
+        <div class="flex items-center space-x-3">
+            <a href="index.html" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition">+ Ir al Formulario</a>
+            <button id="btnCerrarSesion" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl transition border border-red-200 cursor-pointer">Salir</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto w-full p-6 my-4 flex-grow space-y-4">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Tickets Recientes</h2>
+                <p class="text-xs text-slate-500">Listado general de incidencias reportadas por las sucursales.</p>
+            </div>
+            <button id="btnActualizar" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow transition cursor-pointer">🔄 Actualizar Lista</button>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-mono uppercase tracking-wider">
+                            <th class="py-3 px-3">ID / Fecha</th>
+                            <th class="py-3 px-3">Sucursal</th>
+                            <th class="py-3 px-3">Solicitante</th>
+                            <th class="py-3 px-3">Categoría</th>
+                            <th class="py-3 px-3">Urgencia</th>
+                            <th class="py-3 px-3">Descripción</th>
+                            <th class="py-3 px-3">Estado</th>
+                            <th class="py-3 px-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaTickets" class="divide-y divide-slate-200 text-slate-700">
+                        <tr><td colspan="8" class="p-4 text-center text-slate-400">Cargando tickets...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Responder -->
+    <div id="modalResponder" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 border border-slate-200">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">✉️ Responder Ticket <span id="modalTicketId" class="text-slate-400 font-mono text-xs"></span></h3>
+                <button onclick="cerrarModalResponder()" class="text-slate-400 hover:text-slate-600 text-lg font-bold cursor-pointer">&times;</button>
+            </div>
+            <div class="space-y-1"><p class="text-xs text-slate-500">Para: <span id="modalSolicitante" class="font-semibold text-slate-700"></span> (<span id="modalCorreo" class="font-mono text-indigo-600"></span>)</p></div>
+            <div class="space-y-1.5"><label class="block text-xs font-semibold text-slate-600 uppercase">Mensaje de Respuesta</label><textarea id="modalMensaje" rows="4" placeholder="Escribe tu respuesta..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs outline-none focus:ring-2 focus:ring-slate-900"></textarea></div>
+            <div class="space-y-1.5"><label class="block text-xs font-semibold text-slate-600 uppercase">Adjuntar Archivo</label><input type="file" id="modalArchivo" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700"></div>
+            <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button onclick="cerrarModalResponder()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600">Cancelar</button>
+                <button id="btnEnviarRespuesta" onclick="enviarRespuestaEmail()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white flex items-center gap-2"><span>📤 Enviar Respuesta</span></button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 font-mono">Grupo Huerta // Panel de Control TI &copy; 2026</footer>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
