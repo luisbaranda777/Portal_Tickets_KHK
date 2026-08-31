@@ -6,6 +6,8 @@
     <title>Panel de Administración - Soporte TI KHK</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN para gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <!-- EmailJS SDK -->
@@ -40,6 +42,10 @@
             <button onclick="cambiarSeccion('configuracion')" id="nav-configuracion" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
                 ⚙️ Config. Formulario
             </button>
+            <button onclick="cambiarSeccion('graficas')" id="nav-graficas" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+                📈 Gráficas 
+            </button>
+            
         </nav>
 
         <!-- Acciones Derecha -->
@@ -162,6 +168,32 @@
             </div>
         </div>
 
+        <!-- SECCIÓN NUEVA: GRÁFICAS Y ESTADÍSTICAS -->
+        <div id="seccion-graficas" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Estadísticas y Gráficas de Soporte</h2>
+                <p class="text-xs text-slate-500">Visualización del comportamiento de tickets por agencia y sus estados actuales.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Gráfica 1: Tickets por Agencia -->
+                <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col items-center">
+                    <h3 class="text-xs font-bold font-mono text-slate-700 uppercase mb-4 self-start">🏢 Tickets por Agencia / Sucursal</h3>
+                    <div class="w-full h-64 flex justify-center items-center">
+                        <canvas id="graficaAgencias"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfica 2: Estados de los Tickets -->
+                <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col items-center">
+                    <h3 class="text-xs font-bold font-mono text-slate-700 uppercase mb-4 self-start">📊 Distribución por Estados</h3>
+                    <div class="w-full h-64 flex justify-center items-center">
+                        <canvas id="graficaEstados"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- VENTANA MODAL FLOTANTE PARA CONTESTAR TICKET -->
@@ -203,6 +235,7 @@
     </footer>
 
     <!-- Scripts -->
+   <!-- Scripts -->
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -222,16 +255,19 @@
         window.cambiarSeccion = function(seccion) {
             document.getElementById('seccion-dashboard').classList.add('hidden');
             document.getElementById('seccion-usuarios').classList.add('hidden');
+            document.getElementById('seccion-graficas').classList.add('hidden');
             document.getElementById('seccion-configuracion').classList.add('hidden');
 
             document.getElementById('nav-dashboard').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
             document.getElementById('nav-usuarios').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            document.getElementById('nav-graficas').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
             document.getElementById('nav-configuracion').className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer";
 
             document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
             document.getElementById(`nav-${seccion}`).className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer";
 
             if (seccion === 'usuarios') cargarUsuarios();
+            if (seccion === 'graficas') cargarGraficas();
             if (seccion === 'configuracion') cargarConfiguracion();
         }
 
@@ -406,12 +442,12 @@
             }
         }
 
-        // NUEVA FUNCIÓN PARA CARGAR EL REPORTE AGRUPADO POR AGENCIA / SUCURSAL
+        // FUNCIÓN PARA CARGAR EL REPORTE AGRUPADO POR AGENCIA / SUCURSAL
         async function cargarUsuarios() {
             const tbody = document.getElementById('tablaUsuarios');
             if (!tbody) return;
             
-            const { data: tickets, error } = await supabase.from('tickets').select('sucursal, solicitante, correo');
+            const { data: tickets, error } = await supabase.from('tickets').select('sucursal, solicitante, correo, estado');
             
             if (error) {
                 tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Error al cargar los datos.</td></tr>`;
@@ -436,10 +472,17 @@
                     mapaSucursales[suc].solicitantesMap[correoKey] = {
                         nombre: t.solicitante || 'Anónimo',
                         correo: t.correo || '',
-                        cantidad: 0
+                        cantidad: 0,
+                        estados: {}
                     };
                 }
                 mapaSucursales[suc].solicitantesMap[correoKey].cantidad++;
+
+                let estRaw = (t.estado || 'Abierto').trim();
+                let est = estRaw.charAt(0).toUpperCase() + estRaw.slice(1).toLowerCase();
+                if(est === 'En proceso') est = 'En Proceso';
+
+                mapaSucursales[suc].solicitantesMap[correoKey].estados[est] = (mapaSucursales[suc].solicitantesMap[correoKey].estados[est] || 0) + 1;
             });
             
             const sucursalesArray = Object.keys(mapaSucursales).map(suc => ({
@@ -455,17 +498,27 @@
             
             tbody.innerHTML = '';
             sucursalesArray.forEach(item => {
-                const listaSolicitantesHTML = item.solicitantes.map(s => `
-                    <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-xl border border-slate-200 mb-1 last:mb-0 shadow-2xs">
-                        <div>
-                            <span class="font-semibold text-slate-900">${s.nombre}</span>
-                            <span class="text-[11px] text-slate-400 ml-1">(${s.correo})</span>
+                const listaSolicitantesHTML = item.solicitantes.map(s => {
+                    const estadosBadges = Object.entries(s.estados).map(([est, count]) => {
+                        let badgeClass = 'bg-sky-100 text-sky-800 border-sky-300';
+                        if (est === 'Resuelto' || est === 'Cerrado') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                        if (est === 'En Proceso') badgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                        return `<span class="${badgeClass} text-[10px] px-2 py-0.5 rounded-full font-semibold border ml-1">${est}: ${count}</span>`;
+                    }).join('');
+
+                    return `
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white px-3 py-1.5 rounded-xl border border-slate-200 mb-1 last:mb-0 shadow-2xs gap-2">
+                            <div>
+                                <span class="font-semibold text-slate-900">${s.nombre}</span>
+                                <span class="text-[11px] text-slate-400 ml-1">(${s.correo})</span>
+                            </div>
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">Total: ${s.cantidad}</span>
+                                ${estadosBadges}
+                            </div>
                         </div>
-                        <span class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                            ${s.cantidad} ticket(s)
-                        </span>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-100/60 transition align-top">
@@ -484,6 +537,73 @@
                         </td>
                     </tr>
                 `;
+            });
+        }
+
+        // NUEVA FUNCIÓN PARA CARGAR LAS GRÁFICAS
+        let chartAgenciasInstance = null;
+        let chartEstadosInstance = null;
+
+        async function cargarGraficas() {
+            const { data: tickets, error } = await supabase.from('tickets').select('sucursal, estado');
+            if (error || !tickets) return;
+
+            const conteoAgencias = {};
+            const conteoEstados = { Abierto: 0, 'En Proceso': 0, Resuelto: 0 };
+
+            tickets.forEach(t => {
+                const suc = t.sucursal ? t.sucursal.trim() : 'Sin sucursal';
+                conteoAgencias[suc] = (conteoAgencias[suc] || 0) + 1;
+
+                let estRaw = (t.estado || 'Abierto').trim();
+                let est = estRaw.charAt(0).toUpperCase() + estRaw.slice(1).toLowerCase();
+                if(est === 'En proceso') est = 'En Proceso';
+
+                if (conteoEstados[est] !== undefined) {
+                    conteoEstados[est]++;
+                } else {
+                    conteoEstados[est] = 1;
+                }
+            });
+
+            if (chartAgenciasInstance) chartAgenciasInstance.destroy();
+            if (chartEstadosInstance) chartEstadosInstance.destroy();
+
+            const ctxAgencias = document.getElementById('graficaAgencias').getContext('2d');
+            chartAgenciasInstance = new Chart(ctxAgencias, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(conteoAgencias),
+                    datasets: [{
+                        label: 'Tickets',
+                        data: Object.values(conteoAgencias),
+                        backgroundColor: '#6366f1',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const ctxEstados = document.getElementById('graficaEstados').getContext('2d');
+            chartEstadosInstance = new Chart(ctxEstados, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(conteoEstados),
+                    datasets: [{
+                        data: Object.values(conteoEstados),
+                        backgroundColor: ['#0ea5e9', '#f59e0b', '#10b981'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
             });
         }
 
@@ -567,5 +687,3 @@
         cargarConfiguracion();
         document.getElementById('btnActualizar').addEventListener('click', cargarTickets);
     </script>
-</body>
-</html>
