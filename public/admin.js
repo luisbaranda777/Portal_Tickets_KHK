@@ -232,12 +232,12 @@ async function cargarUsuarios() {
     
     tbody.innerHTML = '';
     sucursalesArray.forEach(item => {
-        const listaSolicitantesHTML = item.solicitantes.map(s => {
+       const listaSolicitantesHTML = item.solicitantes.map(s => {
             const estadosBadges = Object.entries(s.estados).map(([est, count]) => {
                 let badgeClass = 'bg-sky-100 text-sky-800 border-sky-300';
                 if (est === 'Resuelto' || est === 'Cerrado') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
                 if (est === 'En Proceso') badgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
-                return `<span class="${badgeClass} text-[10px] px-2.5 py-0.5 rounded-full font-semibold border ml-1">${est}: ${count}</span>`;
+                return `<span class="${badgeClass} text-[10px] px-2 py-0.5 rounded-full font-semibold border ml-1">${est}: ${count}</span>`;
             }).join('');
 
             return `
