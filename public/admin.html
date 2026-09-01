@@ -65,8 +65,9 @@
                     <h3 class="font-bold text-xs text-slate-900 border-b pb-2">Parámetros del Reporte</h3>
                     
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">📅 Fecha (Opcional):</label>
-                        <input type="date" id="filtroFecha" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">📅 Mes y Año (Opcional):</label>
+                        <!-- Cambiado a type="month" para filtrar por mes y año -->
+                        <input type="month" id="filtroMes" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500">
                     </div>
 
                     <div>
@@ -317,7 +318,7 @@
             if (seccion === 'configuracion') cargarConfiguracion();
         }
 
-        // FUNCIONES PARA EL MENÚ FLOTANTE Y GENERACIÓN DE REPORTE PDF
+        // FUNCIONES PARA EL MENÚ FLOTANTE Y GENERACIÓN DE REPORTE PDF (Filtrando por mes y año)
         window.toggleMenuReporte = async function() {
             const menu = document.getElementById('menuReporte');
             menu.classList.toggle('hidden');
@@ -336,7 +337,7 @@
         }
 
         window.generarReportePDF = async function() {
-            const fechaFiltro = document.getElementById('filtroFecha').value;
+            const mesFiltro = document.getElementById('filtroMes').value; // Valor tipo "YYYY-MM"
             const sucursalFiltro = document.getElementById('filtroSucursal').value;
             const estadoFiltro = document.getElementById('filtroEstado').value;
 
@@ -353,10 +354,11 @@
             }
 
             let ticketsFinales = tickets;
-            if (fechaFiltro) {
-                ticketsFinales = tickets.filter(t => t.created_at && t.created_at.startsWith(fechaFiltro));
+            if (mesFiltro) {
+                // Filtra comparando si la fecha del ticket comienza con el año y mes seleccionado (ej. "2026-06")
+                ticketsFinales = tickets.filter(t => t.created_at && t.created_at.startsWith(mesFiltro));
                 if (ticketsFinales.length === 0) {
-                    alert('No hay tickets para la fecha seleccionada.');
+                    alert('No hay tickets para el mes y año seleccionado.');
                     return;
                 }
             }
@@ -371,7 +373,7 @@
             doc.setFontSize(10);
             doc.setTextColor(100, 116, 139);
             let subtext = `Generado el: ${new Date().toLocaleDateString()} | Filtros: `;
-            subtext += `Sucursal: ${sucursalFiltro || 'Todas'} | Estado: ${estadoFiltro || 'Todos'} | Fecha: ${fechaFiltro || 'Todas'}`;
+            subtext += `Sucursal: ${sucursalFiltro || 'Todas'} | Estado: ${estadoFiltro || 'Todos'} | Mes/Año: ${mesFiltro || 'Todos'}`;
             doc.text(subtext, 14, 27);
 
             const tableRows = ticketsFinales.map(t => [
@@ -392,7 +394,7 @@
                 styles: { fontSize: 9, cellPadding: 3 }
             });
 
-            doc.save(`Reporte_Tickets_${new Date().toISOString().slice(0,10)}.pdf`);
+            doc.save(`Reporte_Tickets_${mesFiltro || 'General'}.pdf`);
             toggleMenuReporte();
         }
 
