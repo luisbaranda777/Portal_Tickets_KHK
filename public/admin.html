@@ -55,45 +55,47 @@
         <!-- Acciones Derecha -->
         <div class="flex items-center space-x-3">
             
+            <!-- Botón Descargar Reporte con Menú Flotante -->
             <div class="relative inline-block text-left">
-            <button onclick="toggleMenuReporte()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                <span>📄 Descargar Reporte</span>
-                <span>▼</span>
-            </button>
+                <button onclick="toggleMenuReporte()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                    <span>📄 Descargar Reporte</span>
+                    <span>▼</span>
+                </button>
 
-            <!-- Menú flotante -->
-            <div id="menuReporte" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-50 space-y-3">
-                <h3 class="font-bold text-xs text-slate-900 border-b pb-2">Parámetros del Reporte</h3>
-                
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">📅 Fecha (Opcional):</label>
-                    <input type="date" id="filtroFecha" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500">
-                </div>
+                <!-- Menú flotante (oculto por defecto) -->
+                <div id="menuReporte" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-50 space-y-3">
+                    <h3 class="font-bold text-xs text-slate-900 border-b pb-2">Parámetros del Reporte</h3>
+                    
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">📅 Fecha (Opcional):</label>
+                        <input type="date" id="filtroFecha" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500">
+                    </div>
 
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">🏢 Sucursal / Agencia:</label>
-                    <select id="filtroSucursal" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500 bg-white">
-                        <option value="">Todas las sucursales</option>
-                    </select>
-                </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">🏢 Sucursal / Agencia:</label>
+                        <select id="filtroSucursal" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500 bg-white">
+                            <option value="">Todas las sucursales</option>
+                        </select>
+                    </div>
 
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">📌 Estado:</label>
-                    <select id="filtroEstado" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500 bg-white">
-                        <option value="">Todos los estados</option>
-                        <option value="Abierto">Abierto</option>
-                        <option value="En Proceso">En Proceso</option>
-                        <option value="Resuelto">Resuelto</option>
-                    </select>
-                </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">📌 Estado:</label>
+                        <select id="filtroEstado" class="w-full text-xs border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500 bg-white">
+                            <option value="">Todos los estados</option>
+                            <option value="Abierto">Abierto</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Resuelto">Resuelto</option>
+                        </select>
+                    </div>
 
-                <div class="pt-2 flex gap-2">
-                    <button onclick="generarReportePDF()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 rounded-xl transition cursor-pointer">
-                        Generar PDF
-                    </button>
-                    <button onclick="toggleMenuReporte()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition cursor-pointer">
-                        Cancelar
-                    </button>
+                    <div class="pt-2 flex gap-2">
+                        <button onclick="generarReportePDF()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 rounded-xl transition cursor-pointer">
+                            Generar PDF
+                        </button>
+                        <button onclick="toggleMenuReporte()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition cursor-pointer">
+                            Cancelar
+                        </button>
+                    </div>
                 </div>
             </div>
 
