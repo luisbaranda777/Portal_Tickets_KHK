@@ -9,7 +9,7 @@
     <!-- Chart.js CDN para gráficas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Generar reportes-->
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 
@@ -48,8 +48,6 @@
             <button onclick="cambiarSeccion('graficas')" id="nav-graficas" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
                 📈 Gráficas 
             </button>
-            
-            
         </nav>
 
         <!-- Acciones Derecha -->
@@ -284,7 +282,6 @@
     </footer>
 
     <!-- Scripts -->
-   <!-- Scripts -->
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -318,6 +315,85 @@
             if (seccion === 'usuarios') cargarUsuarios();
             if (seccion === 'graficas') cargarGraficas();
             if (seccion === 'configuracion') cargarConfiguracion();
+        }
+
+        // FUNCIONES PARA EL MENÚ FLOTANTE Y GENERACIÓN DE REPORTE PDF
+        window.toggleMenuReporte = async function() {
+            const menu = document.getElementById('menuReporte');
+            menu.classList.toggle('hidden');
+
+            if (!menu.classList.contains('hidden')) {
+                const selectSuc = document.getElementById('filtroSucursal');
+                const { data: sucs } = await supabase.from('config_sucursales').select('nombre').order('nombre');
+                
+                selectSuc.innerHTML = '<option value="">Todas las sucursales</option>';
+                if (sucs) {
+                    sucs.forEach(s => {
+                        selectSuc.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
+                    });
+                }
+            }
+        }
+
+        window.generarReportePDF = async function() {
+            const fechaFiltro = document.getElementById('filtroFecha').value;
+            const sucursalFiltro = document.getElementById('filtroSucursal').value;
+            const estadoFiltro = document.getElementById('filtroEstado').value;
+
+            let query = supabase.from('tickets').select('*').order('created_at', { ascending: false });
+            
+            if (sucursalFiltro) query = query.eq('sucursal', sucursalFiltro);
+            if (estadoFiltro) query = query.eq('estado', estadoFiltro);
+
+            const { data: tickets, error } = await query;
+
+            if (error || !tickets || tickets.length === 0) {
+                alert('No se encontraron tickets con los parámetros seleccionados.');
+                return;
+            }
+
+            let ticketsFinales = tickets;
+            if (fechaFiltro) {
+                ticketsFinales = tickets.filter(t => t.created_at && t.created_at.startsWith(fechaFiltro));
+                if (ticketsFinales.length === 0) {
+                    alert('No hay tickets para la fecha seleccionada.');
+                    return;
+                }
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.setTextColor(30, 41, 59);
+            doc.text("Reporte de Tickets - Grupo Huerta", 14, 20);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            let subtext = `Generado el: ${new Date().toLocaleDateString()} | Filtros: `;
+            subtext += `Sucursal: ${sucursalFiltro || 'Todas'} | Estado: ${estadoFiltro || 'Todos'} | Fecha: ${fechaFiltro || 'Todas'}`;
+            doc.text(subtext, 14, 27);
+
+            const tableRows = ticketsFinales.map(t => [
+                `#${t.id}`,
+                t.sucursal || 'N/A',
+                t.solicitante || 'N/A',
+                t.categoria || 'N/A',
+                t.urgencia || 'N/A',
+                t.estado || 'Abierto',
+                new Date(t.created_at).toLocaleDateString()
+            ]);
+
+            doc.autoTable({
+                startY: 35,
+                head: [['Folio', 'Sucursal', 'Solicitante', 'Categoría', 'Urgencia', 'Estado', 'Fecha']],
+                body: tableRows,
+                headStyles: { fillColor: [99, 102, 241] },
+                styles: { fontSize: 9, cellPadding: 3 }
+            });
+
+            doc.save(`Reporte_Tickets_${new Date().toISOString().slice(0,10)}.pdf`);
+            toggleMenuReporte();
         }
 
         let ticketActualCompleto = null;
@@ -491,7 +567,6 @@
             }
         }
 
-        // FUNCIÓN PARA CARGAR EL REPORTE AGRUPADO POR AGENCIA / SUCURSAL
         async function cargarUsuarios() {
             const tbody = document.getElementById('tablaUsuarios');
             if (!tbody) return;
@@ -589,7 +664,6 @@
             });
         }
 
-        // NUEVA FUNCIÓN PARA CARGAR LAS GRÁFICAS
         let chartAgenciasInstance = null;
         let chartEstadosInstance = null;
 
@@ -736,3 +810,5 @@
         cargarConfiguracion();
         document.getElementById('btnActualizar').addEventListener('click', cargarTickets);
     </script>
+</body>
+</html>
